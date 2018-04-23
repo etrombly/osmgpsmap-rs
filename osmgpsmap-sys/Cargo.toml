@@ -1,0 +1,33 @@
+[build-dependencies]
+pkg-config = "0.3.7"
+
+[dependencies]
+libc = "0.2"
+cairo-sys-rs = "0.6"
+gdk-pixbuf-sys = "0.6"
+gdk-sys = "0.6"
+glib-sys = "0.6"
+gobject-sys = "0.6"
+gtk-sys = "0.6"
+
+[dev-dependencies]
+shell-words = "0.1.0"
+tempdir = "0.3"
+
+[features]
+dox = []
+
+[lib]
+name = "osmgpsmap_sys"
+
+[package]
+authors = ["Eric Trombly <etrombly@gmail.com>"]
+build = "build.rs"
+description = "FFI bindings to OsmGpsMap-1.0"
+license = "MIT"
+links = "osm_gps_map"
+name = "osmgpsmap-sys"
+readme = "README.md"
+repository = "https://github.com/etrombly/osmgpsmap-sys"
+version = "0.2.0"
+

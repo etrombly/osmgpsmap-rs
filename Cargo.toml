@@ -1,0 +1,6 @@
+[package]
+name = "osmgpsmap-rs"
+version = "0.1.0"
+authors = ["Eric Trombly <etrombly@yahoo.com>"]
+
+[dependencies]

@@ -1,0 +1,21 @@
+[options]
+girs_dir = "gir-files"
+library = "OsmGpsMap"
+version = "1.0"
+min_cfg_version = "1.0"
+work_mode = "normal"
+target_path = "."
+generate_safety_asserts = true
+
+external_libraries = [
+    "GLib",
+    "GObject",
+    "Gtk",
+    "Cairo",
+    "Gdk",
+    "GdkPixbuf"
+]
+
+generate = [
+    "OsmGpsMap.*",
+]
