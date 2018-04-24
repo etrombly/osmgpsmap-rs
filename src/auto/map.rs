@@ -3,9 +3,11 @@
 // DO NOT EDIT
 
 use MapImage;
+use MapKey_t;
 use MapLayer;
 use MapPoint;
 use MapPolygon;
+use MapSource_t;
 use MapTrack;
 use ffi;
 use gdk;
@@ -52,33 +54,54 @@ impl Map {
         }
     }
 
-    //pub fn source_get_copyright(source: /*Ignored*/MapSource_t) -> Option<String> {
-    //    unsafe { TODO: call ffi::osm_gps_map_source_get_copyright() }
-    //}
+    pub fn source_get_copyright(source: MapSource_t) -> Option<String> {
+        assert_initialized_main_thread!();
+        unsafe {
+            from_glib_none(ffi::osm_gps_map_source_get_copyright(source.to_glib()))
+        }
+    }
 
-    //pub fn source_get_friendly_name(source: /*Ignored*/MapSource_t) -> Option<String> {
-    //    unsafe { TODO: call ffi::osm_gps_map_source_get_friendly_name() }
-    //}
+    pub fn source_get_friendly_name(source: MapSource_t) -> Option<String> {
+        assert_initialized_main_thread!();
+        unsafe {
+            from_glib_none(ffi::osm_gps_map_source_get_friendly_name(source.to_glib()))
+        }
+    }
 
-    //pub fn source_get_image_format(source: /*Ignored*/MapSource_t) -> Option<String> {
-    //    unsafe { TODO: call ffi::osm_gps_map_source_get_image_format() }
-    //}
+    pub fn source_get_image_format(source: MapSource_t) -> Option<String> {
+        assert_initialized_main_thread!();
+        unsafe {
+            from_glib_none(ffi::osm_gps_map_source_get_image_format(source.to_glib()))
+        }
+    }
 
-    //pub fn source_get_max_zoom(source: /*Ignored*/MapSource_t) -> i32 {
-    //    unsafe { TODO: call ffi::osm_gps_map_source_get_max_zoom() }
-    //}
+    pub fn source_get_max_zoom(source: MapSource_t) -> i32 {
+        assert_initialized_main_thread!();
+        unsafe {
+            ffi::osm_gps_map_source_get_max_zoom(source.to_glib())
+        }
+    }
 
-    //pub fn source_get_min_zoom(source: /*Ignored*/MapSource_t) -> i32 {
-    //    unsafe { TODO: call ffi::osm_gps_map_source_get_min_zoom() }
-    //}
+    pub fn source_get_min_zoom(source: MapSource_t) -> i32 {
+        assert_initialized_main_thread!();
+        unsafe {
+            ffi::osm_gps_map_source_get_min_zoom(source.to_glib())
+        }
+    }
 
-    //pub fn source_get_repo_uri(source: /*Ignored*/MapSource_t) -> Option<String> {
-    //    unsafe { TODO: call ffi::osm_gps_map_source_get_repo_uri() }
-    //}
+    pub fn source_get_repo_uri(source: MapSource_t) -> Option<String> {
+        assert_initialized_main_thread!();
+        unsafe {
+            from_glib_none(ffi::osm_gps_map_source_get_repo_uri(source.to_glib()))
+        }
+    }
 
-    //pub fn source_is_valid(source: /*Ignored*/MapSource_t) -> bool {
-    //    unsafe { TODO: call ffi::osm_gps_map_source_is_valid() }
-    //}
+    pub fn source_is_valid(source: MapSource_t) -> bool {
+        assert_initialized_main_thread!();
+        unsafe {
+            from_glib(ffi::osm_gps_map_source_is_valid(source.to_glib()))
+        }
+    }
 }
 
 impl Default for Map {
@@ -142,7 +165,7 @@ pub trait MapExt {
 
     fn set_center_and_zoom(&self, latitude: f32, longitude: f32, zoom: i32);
 
-    //fn set_keyboard_shortcut(&self, key: /*Ignored*/MapKey_t, keyval: u32);
+    fn set_keyboard_shortcut(&self, key: MapKey_t, keyval: u32);
 
     fn set_zoom(&self, zoom: i32) -> i32;
 
@@ -462,9 +485,11 @@ impl<O: IsA<Map> + IsA<glib::object::Object>> MapExt for O {
         }
     }
 
-    //fn set_keyboard_shortcut(&self, key: /*Ignored*/MapKey_t, keyval: u32) {
-    //    unsafe { TODO: call ffi::osm_gps_map_set_keyboard_shortcut() }
-    //}
+    fn set_keyboard_shortcut(&self, key: MapKey_t, keyval: u32) {
+        unsafe {
+            ffi::osm_gps_map_set_keyboard_shortcut(self.to_glib_none().0, key.to_glib(), keyval);
+        }
+    }
 
     fn set_zoom(&self, zoom: i32) -> i32 {
         unsafe {

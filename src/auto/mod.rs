@@ -29,6 +29,10 @@ pub use self::map_track::MapTrackExt;
 mod map_point;
 pub use self::map_point::MapPoint;
 
+mod enums;
+pub use self::enums::MapKey_t;
+pub use self::enums::MapSource_t;
+
 #[doc(hidden)]
 pub mod traits {
     pub use super::MapExt;

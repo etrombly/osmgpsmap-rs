@@ -5,3 +5,126 @@
 use ffi;
 use glib::translate::*;
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
+pub enum MapKey_t {
+    Fullscreen,
+    Zoomin,
+    Zoomout,
+    Up,
+    Down,
+    Left,
+    Right,
+    Max,
+    #[doc(hidden)]
+    __Unknown(i32),
+}
+
+#[doc(hidden)]
+impl ToGlib for MapKey_t {
+    type GlibType = ffi::OsmGpsMapKey_t;
+
+    fn to_glib(&self) -> ffi::OsmGpsMapKey_t {
+        match *self {
+            MapKey_t::Fullscreen => ffi::OSM_GPS_MAP_KEY_FULLSCREEN,
+            MapKey_t::Zoomin => ffi::OSM_GPS_MAP_KEY_ZOOMIN,
+            MapKey_t::Zoomout => ffi::OSM_GPS_MAP_KEY_ZOOMOUT,
+            MapKey_t::Up => ffi::OSM_GPS_MAP_KEY_UP,
+            MapKey_t::Down => ffi::OSM_GPS_MAP_KEY_DOWN,
+            MapKey_t::Left => ffi::OSM_GPS_MAP_KEY_LEFT,
+            MapKey_t::Right => ffi::OSM_GPS_MAP_KEY_RIGHT,
+            MapKey_t::Max => ffi::OSM_GPS_MAP_KEY_MAX,
+            MapKey_t::__Unknown(value) => value
+        }
+    }
+}
+
+#[doc(hidden)]
+impl FromGlib<ffi::OsmGpsMapKey_t> for MapKey_t {
+    fn from_glib(value: ffi::OsmGpsMapKey_t) -> Self {
+        skip_assert_initialized!();
+        match value {
+            0 => MapKey_t::Fullscreen,
+            1 => MapKey_t::Zoomin,
+            2 => MapKey_t::Zoomout,
+            3 => MapKey_t::Up,
+            4 => MapKey_t::Down,
+            5 => MapKey_t::Left,
+            6 => MapKey_t::Right,
+            7 => MapKey_t::Max,
+            value => MapKey_t::__Unknown(value),
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
+pub enum MapSource_t {
+    Null,
+    Openstreetmap,
+    OpenstreetmapRenderer,
+    Openaerialmap,
+    MapsForFree,
+    Opencyclemap,
+    OsmPublicTransport,
+    GoogleStreet,
+    GoogleSatellite,
+    GoogleHybrid,
+    VirtualEarthStreet,
+    VirtualEarthSatellite,
+    VirtualEarthHybrid,
+    OsmcTrails,
+    Last,
+    #[doc(hidden)]
+    __Unknown(i32),
+}
+
+#[doc(hidden)]
+impl ToGlib for MapSource_t {
+    type GlibType = ffi::OsmGpsMapSource_t;
+
+    fn to_glib(&self) -> ffi::OsmGpsMapSource_t {
+        match *self {
+            MapSource_t::Null => ffi::OSM_GPS_MAP_SOURCE_NULL,
+            MapSource_t::Openstreetmap => ffi::OSM_GPS_MAP_SOURCE_OPENSTREETMAP,
+            MapSource_t::OpenstreetmapRenderer => ffi::OSM_GPS_MAP_SOURCE_OPENSTREETMAP_RENDERER,
+            MapSource_t::Openaerialmap => ffi::OSM_GPS_MAP_SOURCE_OPENAERIALMAP,
+            MapSource_t::MapsForFree => ffi::OSM_GPS_MAP_SOURCE_MAPS_FOR_FREE,
+            MapSource_t::Opencyclemap => ffi::OSM_GPS_MAP_SOURCE_OPENCYCLEMAP,
+            MapSource_t::OsmPublicTransport => ffi::OSM_GPS_MAP_SOURCE_OSM_PUBLIC_TRANSPORT,
+            MapSource_t::GoogleStreet => ffi::OSM_GPS_MAP_SOURCE_GOOGLE_STREET,
+            MapSource_t::GoogleSatellite => ffi::OSM_GPS_MAP_SOURCE_GOOGLE_SATELLITE,
+            MapSource_t::GoogleHybrid => ffi::OSM_GPS_MAP_SOURCE_GOOGLE_HYBRID,
+            MapSource_t::VirtualEarthStreet => ffi::OSM_GPS_MAP_SOURCE_VIRTUAL_EARTH_STREET,
+            MapSource_t::VirtualEarthSatellite => ffi::OSM_GPS_MAP_SOURCE_VIRTUAL_EARTH_SATELLITE,
+            MapSource_t::VirtualEarthHybrid => ffi::OSM_GPS_MAP_SOURCE_VIRTUAL_EARTH_HYBRID,
+            MapSource_t::OsmcTrails => ffi::OSM_GPS_MAP_SOURCE_OSMC_TRAILS,
+            MapSource_t::Last => ffi::OSM_GPS_MAP_SOURCE_LAST,
+            MapSource_t::__Unknown(value) => value
+        }
+    }
+}
+
+#[doc(hidden)]
+impl FromGlib<ffi::OsmGpsMapSource_t> for MapSource_t {
+    fn from_glib(value: ffi::OsmGpsMapSource_t) -> Self {
+        skip_assert_initialized!();
+        match value {
+            0 => MapSource_t::Null,
+            1 => MapSource_t::Openstreetmap,
+            2 => MapSource_t::OpenstreetmapRenderer,
+            3 => MapSource_t::Openaerialmap,
+            4 => MapSource_t::MapsForFree,
+            5 => MapSource_t::Opencyclemap,
+            6 => MapSource_t::OsmPublicTransport,
+            7 => MapSource_t::GoogleStreet,
+            8 => MapSource_t::GoogleSatellite,
+            9 => MapSource_t::GoogleHybrid,
+            10 => MapSource_t::VirtualEarthStreet,
+            11 => MapSource_t::VirtualEarthSatellite,
+            12 => MapSource_t::VirtualEarthHybrid,
+            13 => MapSource_t::OsmcTrails,
+            14 => MapSource_t::Last,
+            value => MapSource_t::__Unknown(value),
+        }
+    }
+}
+
