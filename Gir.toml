@@ -17,5 +17,20 @@ external_libraries = [
 ]
 
 generate = [
-    "OsmGpsMap.*",
+    "OsmGpsMap.Map",
+    "OsmGpsMap.MapImage",
+    "OsmGpsMap.MapLayer",
+    "OsmGpsMap.MapOsd",
+    "OsmGpsMap.MapPolygon",
+    "OsmGpsMap.MapPoint",
+    "OsmGpsMap.MapTrack",
+]
+
+manual = [
+    "cairo.Context",
+    "GdkPixbuf.Pixbuf",
+    "Gdk.EventButton",
+    "Gdk.Rectangle",
+    "Gdk.RGBA",
+    "Gtk.Widget",
 ]

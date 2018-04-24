@@ -28,6 +28,6 @@ license = "MIT"
 links = "osm_gps_map"
 name = "osmgpsmap-sys"
 readme = "README.md"
-repository = "https://github.com/etrombly/osmgpsmap-sys"
-version = "0.2.0"
+repository = "https://github.com/etrombly/osmgpsmap-rs"
+version = "0.2.1"
 

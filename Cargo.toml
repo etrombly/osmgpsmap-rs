@@ -1,6 +1,20 @@
 [package]
+authors = ["Eric Trombly <etrombly@gmail.com>"]
+description = "Rust library for OsmGpsMap-1.0"
+license = "MIT"
 name = "osmgpsmap-rs"
-version = "0.1.0"
-authors = ["Eric Trombly <etrombly@yahoo.com>"]
+readme = "README.md"
+repository = "https://github.com/etrombly/osmgpsmap-rs"
+version = "0.2.0"
 
 [dependencies]
+osmgpsmap-sys = "0.2.0"
+gdk = "0.8"
+gdk-pixbuf = "0.4"
+glib = "0.5"
+glib-sys = "0.6"
+gobject-sys = "0.6"
+gtk = "0.4"
+gtk-sys = "0.6"
+cairo = "0.0.4"
+libc = "0.2"
