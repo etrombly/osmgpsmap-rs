@@ -1615,12 +1615,20 @@ of the current window, i.e the top left and bottom right corners.</doc>
           <instance-parameter name="point" transfer-ownership="none">
             <type name="MapPoint" c:type="OsmGpsMapPoint*"/>
           </instance-parameter>
-          <parameter name="rlat" transfer-ownership="none">
-            <type name="gfloat" c:type="float*"/>
-          </parameter>
-          <parameter name="rlon" transfer-ownership="none">
-            <type name="gfloat" c:type="float*"/>
-          </parameter>
+          <parameter name="rlat"
+                       direction="out"
+                       caller-allocates="0"
+                       transfer-ownership="full">
+              <doc xml:space="preserve">latitude in radians</doc>
+              <type name="gfloat" c:type="float*"/>
+            </parameter>
+            <parameter name="rlon"
+                       direction="out"
+                       caller-allocates="0"
+                       transfer-ownership="full">
+              <doc xml:space="preserve">longitude in radians</doc>
+              <type name="gfloat" c:type="float*"/>
+            </parameter>
         </parameters>
       </method>
       <method name="set_degrees" c:identifier="osm_gps_map_point_set_degrees">

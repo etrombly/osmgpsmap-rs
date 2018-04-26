@@ -43,9 +43,12 @@ impl MapPoint {
         }
     }
 
-    pub fn get_radians(&mut self, rlat: f32, rlon: f32) {
+    pub fn get_radians(&mut self) -> (f32, f32) {
         unsafe {
-            ffi::osm_gps_map_point_get_radians(self.to_glib_none_mut().0, rlat, rlon);
+            let mut rlat = mem::uninitialized();
+            let mut rlon = mem::uninitialized();
+            ffi::osm_gps_map_point_get_radians(self.to_glib_none_mut().0, &mut rlat, &mut rlon);
+            (rlat, rlon)
         }
     }
 

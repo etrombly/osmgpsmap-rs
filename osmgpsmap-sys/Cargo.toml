@@ -2,13 +2,13 @@
 pkg-config = "0.3.7"
 
 [dependencies]
-libc = "0.2"
 cairo-sys-rs = "0.6"
 gdk-pixbuf-sys = "0.6"
 gdk-sys = "0.6"
 glib-sys = "0.6"
 gobject-sys = "0.6"
 gtk-sys = "0.6"
+libc = "0.2"
 
 [dev-dependencies]
 shell-words = "0.1.0"
@@ -30,4 +30,3 @@ name = "osmgpsmap-sys"
 readme = "README.md"
 repository = "https://github.com/etrombly/osmgpsmap-rs"
 version = "0.2.1"
-

@@ -20,7 +20,6 @@ generate = [
     "OsmGpsMap.Map",
     "OsmGpsMap.MapKey_t",
     "OsmGpsMap.MapOsd",
-    "OsmGpsMap.MapPoint",
     "OsmGpsMap.MapPolygon",
     "OsmGpsMap.MapSource_t",
     "OsmGpsMap.MapTrack",
@@ -57,3 +56,15 @@ status = "generate"
         [[object.function.parameter]]
         name = "event"
         const = true
+
+[[object]]
+name = "OsmGpsMap.MapPoint"
+status = "generate"
+    [[object.function]]
+    name = "get_radians"
+        [[object.function.parameter]]
+        name = "rlat"
+        const = false
+        [[object.function.parameter]]
+        name = "rlon"
+        const = false
