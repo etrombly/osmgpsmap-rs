@@ -1,6 +1,6 @@
 #![allow(unused_imports)]
 
-extern crate osm_gps_map_sys as ffi;
+extern crate osmgpsmap_sys as ffi;
 extern crate gdk;
 extern crate gdk_pixbuf;
 #[macro_use]
