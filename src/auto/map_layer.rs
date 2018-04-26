@@ -24,9 +24,9 @@ glib_wrapper! {
 pub trait MapLayerExt {
     fn busy(&self) -> bool;
 
-    fn button_press(&self, map: &Map, event: &mut gdk::EventButton) -> bool;
+    fn button_press(&self, map: &Map, event: &gdk::EventButton) -> bool;
 
-    fn draw(&self, map: &Map, cr: &mut cairo::Context);
+    fn draw(&self, map: &Map, cr: &cairo::Context);
 
     fn render(&self, map: &Map);
 }
@@ -38,15 +38,15 @@ impl<O: IsA<MapLayer>> MapLayerExt for O {
         }
     }
 
-    fn button_press(&self, map: &Map, event: &mut gdk::EventButton) -> bool {
+    fn button_press(&self, map: &Map, event: &gdk::EventButton) -> bool {
         unsafe {
-            from_glib(ffi::osm_gps_map_layer_button_press(self.to_glib_none().0, map.to_glib_none().0, event.to_glib_none_mut().0))
+            from_glib(ffi::osm_gps_map_layer_button_press(self.to_glib_none().0, map.to_glib_none().0, mut_override(event.to_glib_none().0)))
         }
     }
 
-    fn draw(&self, map: &Map, cr: &mut cairo::Context) {
+    fn draw(&self, map: &Map, cr: &cairo::Context) {
         unsafe {
-            ffi::osm_gps_map_layer_draw(self.to_glib_none().0, map.to_glib_none().0, cr.to_glib_none_mut().0);
+            ffi::osm_gps_map_layer_draw(self.to_glib_none().0, map.to_glib_none().0, mut_override(cr.to_glib_none().0));
         }
     }
 

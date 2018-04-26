@@ -19,8 +19,8 @@ gtk-sys = "^0.6"
 libc = "^0.2"
 
 [dependencies.cairo-rs]
-#version = "^0.4"
-path = "../cairo"
+version = "^0.4"
+#path = "../cairo"
 features = ["use_glib"]
 
 [dev-dependencies]

@@ -18,12 +18,10 @@ external_libraries = [
 
 generate = [
     "OsmGpsMap.Map",
-    "OsmGpsMap.MapImage",
     "OsmGpsMap.MapKey_t",
-    "OsmGpsMap.MapLayer",
     "OsmGpsMap.MapOsd",
-    "OsmGpsMap.MapPolygon",
     "OsmGpsMap.MapPoint",
+    "OsmGpsMap.MapPolygon",
     "OsmGpsMap.MapSource_t",
     "OsmGpsMap.MapTrack",
 ]
@@ -36,3 +34,26 @@ manual = [
     "Gdk.RGBA",
     "Gtk.Widget",
 ]
+
+[[object]]
+name = "OsmGpsMap.MapImage"
+status = "generate"
+    [[object.function]]
+    name = "draw"
+        [[object.function.parameter]]
+        name = "cr"
+        const = true
+
+[[object]]
+name = "OsmGpsMap.MapLayer"
+status = "generate"
+    [[object.function]]
+    name = "draw"
+        [[object.function.parameter]]
+        name = "cr"
+        const = true
+    [[object.function]]
+    name = "button_press"
+        [[object.function.parameter]]
+        name = "event"
+        const = true

@@ -46,7 +46,7 @@ impl Default for MapImage {
 }
 
 pub trait MapImageExt {
-    fn draw(&self, cr: &mut cairo::Context, rect: &mut gdk::Rectangle);
+    fn draw(&self, cr: &cairo::Context, rect: &mut gdk::Rectangle);
 
     fn get_point(&self) -> Option<MapPoint>;
 
@@ -88,9 +88,9 @@ pub trait MapImageExt {
 }
 
 impl<O: IsA<MapImage> + IsA<glib::object::Object>> MapImageExt for O {
-    fn draw(&self, cr: &mut cairo::Context, rect: &mut gdk::Rectangle) {
+    fn draw(&self, cr: &cairo::Context, rect: &mut gdk::Rectangle) {
         unsafe {
-            ffi::osm_gps_map_image_draw(self.to_glib_none().0, cr.to_glib_none_mut().0, rect.to_glib_none_mut().0);
+            ffi::osm_gps_map_image_draw(self.to_glib_none().0, mut_override(cr.to_glib_none().0), rect.to_glib_none_mut().0);
         }
     }
 
