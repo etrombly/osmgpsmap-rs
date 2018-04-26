@@ -2,6 +2,7 @@
 authors = ["Eric Trombly <etrombly@gmail.com>"]
 description = "Rust library for OsmGpsMap-1.0"
 license = "MIT"
+keywords = ["openstreetmap", "gtk", "map", "widget"]
 name = "osmgpsmap"
 readme = "README.md"
 repository = "https://github.com/etrombly/osmgpsmap-rs"
