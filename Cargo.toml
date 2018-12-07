@@ -6,10 +6,10 @@ keywords = ["openstreetmap", "gtk", "map", "widget"]
 name = "osmgpsmap"
 readme = "README.md"
 repository = "https://github.com/etrombly/osmgpsmap-rs"
-version = "0.2.2"
+version = "0.2.3"
 
 [dependencies]
-osmgpsmap-sys = "0.2.2"
+osmgpsmap-sys = "0.2.3"
 gdk = "0.9.0"
 gdk-pixbuf = "0.5.0"
 glib = "0.6.0"
