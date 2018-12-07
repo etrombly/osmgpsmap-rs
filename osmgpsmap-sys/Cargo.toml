@@ -1,5 +1,5 @@
 [build-dependencies]
-pkg-config = "0.3.14"
+pkg-config = "0.3.7"
 
 [dependencies]
 cairo-sys-rs = "0.7.0"
@@ -8,11 +8,11 @@ gdk-sys = "0.7.0"
 glib-sys = "0.7.0"
 gobject-sys = "0.7.0"
 gtk-sys = "0.7.0"
-libc = "0.2.43"
+libc = "0.2"
 
 [dev-dependencies]
 shell-words = "0.1.0"
-tempdir = "0.3.7"
+tempdir = "0.3"
 
 [features]
 dox = []
@@ -29,4 +29,4 @@ links = "osm_gps_map"
 name = "osmgpsmap-sys"
 readme = "README.md"
 repository = "https://github.com/etrombly/osmgpsmap-rs"
-version = "0.2.2"
+version = "0.2.3"
