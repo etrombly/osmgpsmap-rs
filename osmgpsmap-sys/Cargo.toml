@@ -1,14 +1,27 @@
-[build-dependencies]
-pkg-config = "0.3.14"
+[package]
+name = "osmgpsmap-sys"
+description = "ffi bindings for osmgpsmap"
+license = "MIT OR Apache-2.0"
+authors = ["Eric Trombly"]
+version = "0.2.6"
+links = "osm_gps_map"
+build = "build.rs"
+edition = "2018"
+
+[lib]
+name = "osm_gps_map_sys"
 
 [dependencies]
-cairo-sys-rs = "0.8.0"
-gdk-pixbuf-sys = "0.8.0"
-gdk-sys = "0.8.0"
-glib-sys = "0.8.0"
-gobject-sys = "0.8.0"
-gtk-sys = "0.8.0"
-libc = "0.2.58"
+libc = "0.2.62"
+glib-sys = "0.9.0"
+gobject-sys = "0.9.0"
+gtk-sys = "0.9.0"
+cairo-sys-rs = "0.9.0"
+gdk-sys = "0.9.0"
+gdk-pixbuf-sys = "0.9.0"
+
+[build-dependencies]
+pkg-config = "0.3.15"
 
 [dev-dependencies]
 shell-words = "0.1.0"
@@ -17,16 +30,5 @@ tempdir = "0.3.7"
 [features]
 dox = []
 
-[lib]
-name = "osmgpsmap_sys"
-
-[package]
-authors = ["Eric Trombly <etrombly@gmail.com>"]
-build = "build.rs"
-description = "FFI bindings to OsmGpsMap-1.0"
-license = "MIT"
-links = "osm_gps_map"
-name = "osmgpsmap-sys"
-readme = "README.md"
-repository = "https://github.com/etrombly/osmgpsmap-rs"
-version = "0.2.4"
+["package.metadata.docs.rs"]
+features = ["dox"]
