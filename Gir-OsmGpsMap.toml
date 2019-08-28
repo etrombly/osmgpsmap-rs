@@ -36,12 +36,6 @@ manual = [
 ]
 
 [[object]]
-name = "OsmGpsMap.MapPoint"
-status = "generate"
-init_function_expression = "|_ptr| ()"
-clear_function_expression = "|_ptr| ()"
-
-[[object]]
 name = "OsmGpsMap.MapImage"
 status = "generate"
     [[object.function]]
