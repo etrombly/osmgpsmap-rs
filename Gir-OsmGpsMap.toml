@@ -20,7 +20,7 @@ generate = [
     "OsmGpsMap.Map",
     "OsmGpsMap.MapKey_t",
     "OsmGpsMap.MapOsd",
-    "OsmGpsMap.MapPoint",
+#    "OsmGpsMap.MapPoint",
     "OsmGpsMap.MapPolygon",
     "OsmGpsMap.MapSource_t",
     "OsmGpsMap.MapTrack",
@@ -34,6 +34,12 @@ manual = [
     "Gdk.RGBA",
     "Gtk.Widget",
 ]
+
+[[object]]
+name = "OsmGpsMap.MapPoint"
+status = "generate"
+init_function_expression = "|_ptr| ()"
+clear_function_expression = "|_ptr| ()"
 
 [[object]]
 name = "OsmGpsMap.MapImage"

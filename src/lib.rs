@@ -1,11 +1,19 @@
 #![allow(unused_imports)]
 
 extern crate osm_gps_map_sys as ffi;
+extern crate osm_gps_map_sys;
 #[macro_use]
 extern crate glib;
-extern crate glib_sys as glib_ffi;
-extern crate gobject_sys as gobject_ffi;
+//extern crate glib_sys as glib_ffi;
+extern crate glib_sys;
+//extern crate gobject_sys as gobject_ffi;
+extern crate gobject_sys;
 extern crate gtk_sys as gtk_ffi;
+extern crate gdk;
+extern crate gdk_pixbuf;
+extern crate gtk;
+extern crate libc;
+extern crate cairo;
 
 pub use auto::*;
 
