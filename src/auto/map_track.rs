@@ -2,6 +2,7 @@
 // from gir-files (https://github.com/gtk-rs/gir-files @ ???)
 // DO NOT EDIT
 
+use MapPoint;
 use gdk;
 use glib::StaticType;
 use glib::Value;
@@ -44,17 +45,17 @@ impl Default for MapTrack {
 pub const NONE_MAP_TRACK: Option<&MapTrack> = None;
 
 pub trait MapTrackExt: 'static {
-    //fn add_point(&self, point: /*Ignored*/&MapPoint);
+    //fn add_point(&self, point: &MapPoint);
 
     fn get_color(&self, color: &mut gdk::RGBA);
 
     fn get_length(&self) -> f64;
 
-    //fn get_point(&self, pos: i32) -> /*Ignored*/Option<MapPoint>;
+    fn get_point(&self, pos: i32) -> Option<MapPoint>;
 
-    //fn get_points(&self) -> /*Ignored*/Vec<MapPoint>;
+    fn get_points(&self) -> Vec<MapPoint>;
 
-    //fn insert_point(&self, np: /*Ignored*/&mut MapPoint, pos: i32);
+    fn insert_point(&self, np: &mut MapPoint, pos: i32);
 
     fn n_points(&self) -> i32;
 
@@ -80,7 +81,7 @@ pub trait MapTrackExt: 'static {
 
     fn set_property_visible(&self, visible: bool);
 
-    //fn connect_point_added<Unsupported or ignored types>(&self, f: F) -> SignalHandlerId;
+    fn connect_point_added<F: Fn(&Self, &MapPoint) + 'static>(&self, f: F) -> SignalHandlerId;
 
     fn connect_point_changed<F: Fn(&Self, i32) + 'static>(&self, f: F) -> SignalHandlerId;
 
@@ -100,7 +101,7 @@ pub trait MapTrackExt: 'static {
 }
 
 impl<O: IsA<MapTrack>> MapTrackExt for O {
-    //fn add_point(&self, point: /*Ignored*/&MapPoint) {
+    //fn add_point(&self, point: &MapPoint) {
     //    unsafe { TODO: call osm_gps_map_sys:osm_gps_map_track_add_point() }
     //}
 
@@ -116,17 +117,23 @@ impl<O: IsA<MapTrack>> MapTrackExt for O {
         }
     }
 
-    //fn get_point(&self, pos: i32) -> /*Ignored*/Option<MapPoint> {
-    //    unsafe { TODO: call osm_gps_map_sys:osm_gps_map_track_get_point() }
-    //}
+    fn get_point(&self, pos: i32) -> Option<MapPoint> {
+        unsafe {
+            from_glib_full(osm_gps_map_sys::osm_gps_map_track_get_point(self.as_ref().to_glib_none().0, pos))
+        }
+    }
 
-    //fn get_points(&self) -> /*Ignored*/Vec<MapPoint> {
-    //    unsafe { TODO: call osm_gps_map_sys:osm_gps_map_track_get_points() }
-    //}
+    fn get_points(&self) -> Vec<MapPoint> {
+        unsafe {
+            FromGlibPtrContainer::from_glib_none(osm_gps_map_sys::osm_gps_map_track_get_points(self.as_ref().to_glib_none().0))
+        }
+    }
 
-    //fn insert_point(&self, np: /*Ignored*/&mut MapPoint, pos: i32) {
-    //    unsafe { TODO: call osm_gps_map_sys:osm_gps_map_track_insert_point() }
-    //}
+    fn insert_point(&self, np: &mut MapPoint, pos: i32) {
+        unsafe {
+            osm_gps_map_sys::osm_gps_map_track_insert_point(self.as_ref().to_glib_none().0, np.to_glib_none_mut().0, pos);
+        }
+    }
 
     fn n_points(&self) -> i32 {
         unsafe {
@@ -210,9 +217,13 @@ impl<O: IsA<MapTrack>> MapTrackExt for O {
         }
     }
 
-    //fn connect_point_added<Unsupported or ignored types>(&self, f: F) -> SignalHandlerId {
-    //    Ignored arg1: OsmGpsMap.MapPoint
-    //}
+    fn connect_point_added<F: Fn(&Self, &MapPoint) + 'static>(&self, f: F) -> SignalHandlerId {
+        unsafe {
+            let f: Box_<F> = Box_::new(f);
+            connect_raw(self.as_ptr() as *mut _, b"point-added\0".as_ptr() as *const _,
+                Some(transmute(point_added_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+        }
+    }
 
     fn connect_point_changed<F: Fn(&Self, i32) + 'static>(&self, f: F) -> SignalHandlerId {
         unsafe {
@@ -277,6 +288,12 @@ impl<O: IsA<MapTrack>> MapTrackExt for O {
                 Some(transmute(notify_visible_trampoline::<Self, F> as usize)), Box_::into_raw(f))
         }
     }
+}
+
+unsafe extern "C" fn point_added_trampoline<P, F: Fn(&P, &MapPoint) + 'static>(this: *mut osm_gps_map_sys::OsmGpsMapTrack, arg1: *mut osm_gps_map_sys::OsmGpsMapPoint, f: glib_sys::gpointer)
+where P: IsA<MapTrack> {
+    let f: &F = &*(f as *const F);
+    f(&MapTrack::from_glib_borrow(this).unsafe_cast(), &from_glib_borrow(arg1))
 }
 
 unsafe extern "C" fn point_changed_trampoline<P, F: Fn(&P, i32) + 'static>(this: *mut osm_gps_map_sys::OsmGpsMapTrack, object: libc::c_int, f: glib_sys::gpointer)

@@ -2,6 +2,7 @@
 // from gir-files (https://github.com/gtk-rs/gir-files @ ???)
 // DO NOT EDIT
 
+use MapPoint;
 use cairo;
 use gdk;
 use gdk_pixbuf;
@@ -47,7 +48,7 @@ pub const NONE_MAP_IMAGE: Option<&MapImage> = None;
 pub trait MapImageExt: 'static {
     fn draw(&self, cr: &cairo::Context, rect: &mut gdk::Rectangle);
 
-    //fn get_point(&self) -> /*Ignored*/Option<MapPoint>;
+    fn get_point(&self) -> Option<MapPoint>;
 
     fn get_rotation(&self) -> f32;
 
@@ -59,7 +60,7 @@ pub trait MapImageExt: 'static {
 
     fn set_property_pixbuf(&self, pixbuf: Option<&gdk_pixbuf::Pixbuf>);
 
-    //fn set_property_point(&self, point: /*Ignored*/Option<&MapPoint>);
+    fn set_property_point(&self, point: Option<&MapPoint>);
 
     fn get_property_x_align(&self) -> f32;
 
@@ -93,9 +94,11 @@ impl<O: IsA<MapImage>> MapImageExt for O {
         }
     }
 
-    //fn get_point(&self) -> /*Ignored*/Option<MapPoint> {
-    //    unsafe { TODO: call osm_gps_map_sys:osm_gps_map_image_get_point() }
-    //}
+    fn get_point(&self) -> Option<MapPoint> {
+        unsafe {
+            from_glib_none(osm_gps_map_sys::osm_gps_map_image_get_point(self.as_ref().to_glib_none().0))
+        }
+    }
 
     fn get_rotation(&self) -> f32 {
         unsafe {
@@ -129,11 +132,11 @@ impl<O: IsA<MapImage>> MapImageExt for O {
         }
     }
 
-    //fn set_property_point(&self, point: /*Ignored*/Option<&MapPoint>) {
-    //    unsafe {
-    //        gobject_sys::g_object_set_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"point\0".as_ptr() as *const _, Value::from(point).to_glib_none().0);
-    //    }
-    //}
+    fn set_property_point(&self, point: Option<&MapPoint>) {
+        unsafe {
+            gobject_sys::g_object_set_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"point\0".as_ptr() as *const _, Value::from(point).to_glib_none().0);
+        }
+    }
 
     fn get_property_x_align(&self) -> f32 {
         unsafe {

@@ -5,9 +5,11 @@
 use MapImage;
 use MapKey_t;
 use MapLayer;
+use MapPoint;
 use MapPolygon;
 use MapSource_t;
 use MapTrack;
+use gdk;
 use gdk_pixbuf;
 use glib::GString;
 use glib::StaticType;
@@ -23,6 +25,7 @@ use gtk;
 use osm_gps_map_sys;
 use std::boxed::Box as Box_;
 use std::fmt;
+use std::mem;
 use std::mem::transmute;
 
 glib_wrapper! {
@@ -107,17 +110,17 @@ impl Default for Map {
 pub const NONE_MAP: Option<&Map> = None;
 
 pub trait MapExt: 'static {
-    //fn convert_geographic_to_screen(&self, pt: /*Ignored*/&mut MapPoint) -> (i32, i32);
+    fn convert_geographic_to_screen(&self, pt: &mut MapPoint) -> (i32, i32);
 
-    //fn convert_screen_to_geographic(&self, pixel_x: i32, pixel_y: i32, pt: /*Ignored*/MapPoint);
+    fn convert_screen_to_geographic(&self, pixel_x: i32, pixel_y: i32) -> MapPoint;
 
     fn download_cancel_all(&self);
 
-    //fn download_maps(&self, pt1: /*Ignored*/&mut MapPoint, pt2: /*Ignored*/&mut MapPoint, zoom_start: i32, zoom_end: i32);
+    fn download_maps(&self, pt1: &mut MapPoint, pt2: &mut MapPoint, zoom_start: i32, zoom_end: i32);
 
-    //fn get_bbox(&self, pt1: /*Ignored*/MapPoint, pt2: /*Ignored*/MapPoint);
+    fn get_bbox(&self) -> (MapPoint, MapPoint);
 
-    //fn get_event_location(&self, event: &mut gdk::EventButton) -> /*Ignored*/Option<MapPoint>;
+    fn get_event_location(&self, event: &mut gdk::EventButton) -> Option<MapPoint>;
 
     fn get_scale(&self) -> f32;
 
@@ -289,13 +292,22 @@ pub trait MapExt: 'static {
 }
 
 impl<O: IsA<Map>> MapExt for O {
-    //fn convert_geographic_to_screen(&self, pt: /*Ignored*/&mut MapPoint) -> (i32, i32) {
-    //    unsafe { TODO: call osm_gps_map_sys:osm_gps_map_convert_geographic_to_screen() }
-    //}
+    fn convert_geographic_to_screen(&self, pt: &mut MapPoint) -> (i32, i32) {
+        unsafe {
+            let mut pixel_x: i32 = mem::uninitialized();
+            let mut pixel_y: i32 = mem::uninitialized();
+            osm_gps_map_sys::osm_gps_map_convert_geographic_to_screen(self.as_ref().to_glib_none().0, pt.to_glib_none_mut().0, &mut pixel_x, &mut pixel_y);
+            (pixel_x, pixel_y)
+        }
+    }
 
-    //fn convert_screen_to_geographic(&self, pixel_x: i32, pixel_y: i32, pt: /*Ignored*/MapPoint) {
-    //    unsafe { TODO: call osm_gps_map_sys:osm_gps_map_convert_screen_to_geographic() }
-    //}
+    fn convert_screen_to_geographic(&self, pixel_x: i32, pixel_y: i32) -> MapPoint {
+        unsafe {
+            let mut pt: MapPoint = mem::uninitialized();
+            osm_gps_map_sys::osm_gps_map_convert_screen_to_geographic(self.as_ref().to_glib_none().0, pixel_x, pixel_y, pt.to_glib_none_mut().0);
+            pt
+        }
+    }
 
     fn download_cancel_all(&self) {
         unsafe {
@@ -303,17 +315,26 @@ impl<O: IsA<Map>> MapExt for O {
         }
     }
 
-    //fn download_maps(&self, pt1: /*Ignored*/&mut MapPoint, pt2: /*Ignored*/&mut MapPoint, zoom_start: i32, zoom_end: i32) {
-    //    unsafe { TODO: call osm_gps_map_sys:osm_gps_map_download_maps() }
-    //}
+    fn download_maps(&self, pt1: &mut MapPoint, pt2: &mut MapPoint, zoom_start: i32, zoom_end: i32) {
+        unsafe {
+            osm_gps_map_sys::osm_gps_map_download_maps(self.as_ref().to_glib_none().0, pt1.to_glib_none_mut().0, pt2.to_glib_none_mut().0, zoom_start, zoom_end);
+        }
+    }
 
-    //fn get_bbox(&self, pt1: /*Ignored*/MapPoint, pt2: /*Ignored*/MapPoint) {
-    //    unsafe { TODO: call osm_gps_map_sys:osm_gps_map_get_bbox() }
-    //}
+    fn get_bbox(&self) -> (MapPoint, MapPoint) {
+        unsafe {
+            let mut pt1: MapPoint = mem::uninitialized();
+            let mut pt2: MapPoint = mem::uninitialized();
+            osm_gps_map_sys::osm_gps_map_get_bbox(self.as_ref().to_glib_none().0, pt1.to_glib_none_mut().0, pt2.to_glib_none_mut().0);
+            (pt1, pt2)
+        }
+    }
 
-    //fn get_event_location(&self, event: &mut gdk::EventButton) -> /*Ignored*/Option<MapPoint> {
-    //    unsafe { TODO: call osm_gps_map_sys:osm_gps_map_get_event_location() }
-    //}
+    fn get_event_location(&self, event: &mut gdk::EventButton) -> Option<MapPoint> {
+        unsafe {
+            from_glib_full(osm_gps_map_sys::osm_gps_map_get_event_location(self.as_ref().to_glib_none().0, event.to_glib_none_mut().0))
+        }
+    }
 
     fn get_scale(&self) -> f32 {
         unsafe {

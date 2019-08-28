@@ -36,6 +36,10 @@ manual = [
 ]
 
 [[object]]
+name = "OsmGpsMap.MapPoint"
+status = "generate"
+
+[[object]]
 name = "OsmGpsMap.MapImage"
 status = "generate"
     [[object.function]]

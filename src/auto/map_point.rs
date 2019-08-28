@@ -3,6 +3,7 @@
 // DO NOT EDIT
 
 use glib::translate::*;
+use gobject_sys;
 use osm_gps_map_sys;
 use std::mem;
 
@@ -11,8 +12,8 @@ glib_wrapper! {
     pub struct MapPoint(Boxed<osm_gps_map_sys::OsmGpsMapPoint>);
 
     match fn {
-        copy => |ptr| osm_gps_map_sys::osm_gps_map_point_copy(mut_override(ptr)),
-        free => |ptr| osm_gps_map_sys::osm_gps_map_point_free(ptr),
+        copy => |ptr| gobject_sys::g_boxed_copy(osm_gps_map_sys::osm_gps_map_point_get_type(), ptr as *mut _) as *mut osm_gps_map_sys::OsmGpsMapPoint,
+        free => |ptr| gobject_sys::g_boxed_free(osm_gps_map_sys::osm_gps_map_point_get_type(), ptr as *mut _),
         get_type => || osm_gps_map_sys::osm_gps_map_point_get_type(),
     }
 }

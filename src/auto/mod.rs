@@ -26,6 +26,9 @@ mod map_track;
 pub use self::map_track::{MapTrack, MapTrackClass, NONE_MAP_TRACK};
 pub use self::map_track::MapTrackExt;
 
+mod map_point;
+pub use self::map_point::MapPoint;
+
 mod enums;
 pub use self::enums::MapKey_t;
 pub use self::enums::MapSource_t;
