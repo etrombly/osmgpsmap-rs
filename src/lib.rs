@@ -1,11 +1,13 @@
 #![allow(unused_imports)]
 
-extern crate osmgpsmap_sys as ffi;
+extern crate osm_gps_map_sys as ffi;
 #[macro_use]
 extern crate glib;
 extern crate glib_sys as glib_ffi;
 extern crate gobject_sys as gobject_ffi;
 extern crate gtk_sys as gtk_ffi;
+
+pub use auto::*;
 
 macro_rules! assert_initialized_main_thread {
     () => (

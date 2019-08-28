@@ -2,7 +2,7 @@
 // from gir-files (https://github.com/gtk-rs/gir-files @ ???)
 // DO NOT EDIT
 
-extern crate osm_gps_map_sys;
+extern crate osmgpsmap_sys;
 extern crate shell_words;
 extern crate tempdir;
 use std::env;
@@ -11,7 +11,7 @@ use std::path::Path;
 use std::mem::{align_of, size_of};
 use std::process::Command;
 use std::str;
-use osm_gps_map_sys::*;
+use osmgpsmap_sys::*;
 
 static PACKAGES: &[&str] = &["osmgpsmap-1.0"];
 
