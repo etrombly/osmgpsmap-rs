@@ -3,7 +3,6 @@
 // DO NOT EDIT
 
 use glib::translate::*;
-use gobject_sys;
 use osm_gps_map_sys;
 use std::mem;
 
@@ -12,13 +11,18 @@ glib_wrapper! {
     pub struct MapPoint(Boxed<osm_gps_map_sys::OsmGpsMapPoint>);
 
     match fn {
-        copy => |ptr| gobject_sys::g_boxed_copy(osm_gps_map_sys::osm_gps_map_point_get_type(), ptr as *mut _) as *mut osm_gps_map_sys::OsmGpsMapPoint,
-        free => |ptr| gobject_sys::g_boxed_free(osm_gps_map_sys::osm_gps_map_point_get_type(), ptr as *mut _),
+        copy => |ptr| osm_gps_map_sys::osm_gps_map_point_copy(mut_override(ptr)),
+        free => |ptr| osm_gps_map_sys::osm_gps_map_point_free(ptr),
         get_type => || osm_gps_map_sys::osm_gps_map_point_get_type(),
     }
 }
 
 impl MapPoint {
+    pub fn uninitialized() -> MapPoint {
+        unsafe {
+            mem::uninitialized()
+        }
+    }
     pub fn new_degrees(lat: f32, lon: f32) -> MapPoint {
         assert_initialized_main_thread!();
         unsafe {
@@ -42,12 +46,9 @@ impl MapPoint {
         }
     }
 
-    pub fn get_radians(&mut self) -> (f32, f32) {
+    pub fn get_radians(&mut self, rlat: *mut f32, rlon: *mut f32) {
         unsafe {
-            let mut rlat = mem::uninitialized();
-            let mut rlon = mem::uninitialized();
-            osm_gps_map_sys::osm_gps_map_point_get_radians(self.to_glib_none_mut().0, &mut rlat, &mut rlon);
-            (rlat, rlon)
+            osm_gps_map_sys::osm_gps_map_point_get_radians(self.to_glib_none_mut().0, rlat, rlon);
         }
     }
 

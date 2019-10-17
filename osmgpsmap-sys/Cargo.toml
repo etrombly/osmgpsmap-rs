@@ -3,7 +3,7 @@ name = "osmgpsmap-sys"
 description = "ffi bindings for osmgpsmap"
 license = "MIT OR Apache-2.0"
 authors = ["Eric Trombly"]
-version = "0.2.10"
+version = "0.2.11"
 links = "osm_gps_map"
 build = "build.rs"
 edition = "2018"
@@ -12,7 +12,7 @@ edition = "2018"
 name = "osm_gps_map_sys"
 
 [dependencies]
-libc = "0.2"
+libc = "0.2.64"
 glib-sys = "0.9.0"
 gobject-sys = "0.9.0"
 gtk-sys = "0.9.0"
@@ -21,11 +21,11 @@ gdk-sys = "0.9.0"
 gdk-pixbuf-sys = "0.9.0"
 
 [build-dependencies]
-pkg-config = "0.3.7"
+pkg-config = "0.3.16"
 
 [dev-dependencies]
 shell-words = "0.1.0"
-tempdir = "0.3"
+tempdir = "0.3.7"
 
 [features]
 dox = []

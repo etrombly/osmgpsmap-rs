@@ -294,8 +294,8 @@ pub trait MapExt: 'static {
 impl<O: IsA<Map>> MapExt for O {
     fn convert_geographic_to_screen(&self, pt: &mut MapPoint) -> (i32, i32) {
         unsafe {
-            let mut pixel_x: i32 = mem::uninitialized();
-            let mut pixel_y: i32 = mem::uninitialized();
+            let mut pixel_x = mem::uninitialized();
+            let mut pixel_y = mem::uninitialized();
             osm_gps_map_sys::osm_gps_map_convert_geographic_to_screen(self.as_ref().to_glib_none().0, pt.to_glib_none_mut().0, &mut pixel_x, &mut pixel_y);
             (pixel_x, pixel_y)
         }
@@ -303,7 +303,7 @@ impl<O: IsA<Map>> MapExt for O {
 
     fn convert_screen_to_geographic(&self, pixel_x: i32, pixel_y: i32) -> MapPoint {
         unsafe {
-            let mut pt: MapPoint = mem::uninitialized();
+            let mut pt = MapPoint::uninitialized();
             osm_gps_map_sys::osm_gps_map_convert_screen_to_geographic(self.as_ref().to_glib_none().0, pixel_x, pixel_y, pt.to_glib_none_mut().0);
             pt
         }
@@ -323,8 +323,8 @@ impl<O: IsA<Map>> MapExt for O {
 
     fn get_bbox(&self) -> (MapPoint, MapPoint) {
         unsafe {
-            let mut pt1: MapPoint = mem::uninitialized();
-            let mut pt2: MapPoint = mem::uninitialized();
+            let mut pt1 = MapPoint::uninitialized();
+            let mut pt2 = MapPoint::uninitialized();
             osm_gps_map_sys::osm_gps_map_get_bbox(self.as_ref().to_glib_none().0, pt1.to_glib_none_mut().0, pt2.to_glib_none_mut().0);
             (pt1, pt2)
         }
