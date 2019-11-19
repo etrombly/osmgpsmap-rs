@@ -6,6 +6,8 @@ min_cfg_version = "1.0"
 work_mode = "normal"
 target_path = "."
 generate_safety_asserts = true
+deprecate_by_min_version = true
+single_version_file = true
 
 external_libraries = [
     "GLib",
@@ -26,18 +28,32 @@ generate = [
     "OsmGpsMap.MapTrack",
 ]
 
+builders = [
+    "OsmGpsMap.MapBuilder",
+    "OsmGpsMap.MapTrackBuilder",
+    "OsmGpsMap.MapImageBuilder",
+    "OsmGpsMap.MapPolygonBuilder",
+    "OsmGpsMap.MapOsdBuilder"
+]
+
 manual = [
+#    "Atk.ImplementorIface",
     "cairo.Context",
     "GdkPixbuf.Pixbuf",
     "Gdk.EventButton",
     "Gdk.Rectangle",
     "Gdk.RGBA",
     "Gtk.Widget",
+    "Gtk.Buildable",
+    "Gtk.DrawingArea",
+#    "GObject.InitiallyUnowned"
 ]
 
 [[object]]
 name = "OsmGpsMap.MapPoint"
 status = "generate"
+init_function_expression = "|_ptr| ()"
+clear_function_expression = "|_ptr| ()"
 
 [[object]]
 name = "OsmGpsMap.MapImage"
