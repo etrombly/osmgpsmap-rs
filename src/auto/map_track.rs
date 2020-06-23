@@ -2,16 +2,15 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use MapPoint;
 use gdk;
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
 use glib::StaticType;
 use glib::ToValue;
 use glib::Value;
-use glib::object::Cast;
-use glib::object::IsA;
-use glib::signal::SignalHandlerId;
-use glib::signal::connect_raw;
-use glib::translate::*;
 use glib_sys;
 use gobject_sys;
 use libc;
@@ -19,6 +18,7 @@ use osm_gps_map_sys;
 use std::boxed::Box as Box_;
 use std::fmt;
 use std::mem::transmute;
+use MapPoint;
 
 glib_wrapper! {
     pub struct MapTrack(Object<osm_gps_map_sys::OsmGpsMapTrack, osm_gps_map_sys::OsmGpsMapTrackClass, MapTrackClass>);
@@ -43,6 +43,7 @@ impl Default for MapTrack {
     }
 }
 
+#[derive(Clone, Default)]
 pub struct MapTrackBuilder {
     alpha: Option<f32>,
     color: Option<gdk::RGBA>,
@@ -54,14 +55,9 @@ pub struct MapTrackBuilder {
 
 impl MapTrackBuilder {
     pub fn new() -> Self {
-        Self {
-            alpha: None,
-            color: None,
-            editable: None,
-            line_width: None,
-            visible: None,
-        }
+        Self::default()
     }
+
 
     pub fn build(self) -> MapTrack {
         let mut properties: Vec<(&str, &dyn ToValue)> = vec![];
@@ -80,7 +76,11 @@ impl MapTrackBuilder {
         if let Some(ref visible) = self.visible {
             properties.push(("visible", visible));
         }
-        glib::Object::new(MapTrack::static_type(), &properties).expect("object new").downcast().expect("downcast")
+        let ret = glib::Object::new(MapTrack::static_type(), &properties)
+            .expect("object new")
+            .downcast::<MapTrack>()
+            .expect("downcast");
+    ret
     }
 
     pub fn alpha(mut self, alpha: f32) -> Self {
@@ -224,7 +224,7 @@ impl<O: IsA<MapTrack>> MapTrackExt for O {
         unsafe {
             let mut value = Value::from_type(<f32 as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"alpha\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `alpha` getter").unwrap()
         }
     }
 
@@ -238,7 +238,7 @@ impl<O: IsA<MapTrack>> MapTrackExt for O {
         unsafe {
             let mut value = Value::from_type(<bool as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"editable\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `editable` getter").unwrap()
         }
     }
 
@@ -252,7 +252,7 @@ impl<O: IsA<MapTrack>> MapTrackExt for O {
         unsafe {
             let mut value = Value::from_type(<f32 as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"line-width\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `line-width` getter").unwrap()
         }
     }
 
@@ -266,7 +266,7 @@ impl<O: IsA<MapTrack>> MapTrackExt for O {
     //    unsafe {
     //        let mut value = Value::from_type(</*Unknown type*/ as StaticType>::static_type());
     //        gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"track\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-    //        value.get().unwrap()
+    //        value.get().expect("Return Value for property `track` getter").unwrap()
     //    }
     //}
 
@@ -274,7 +274,7 @@ impl<O: IsA<MapTrack>> MapTrackExt for O {
         unsafe {
             let mut value = Value::from_type(<bool as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"visible\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `visible` getter").unwrap()
         }
     }
 
@@ -289,12 +289,12 @@ impl<O: IsA<MapTrack>> MapTrackExt for O {
             where P: IsA<MapTrack>
         {
             let f: &F = &*(f as *const F);
-            f(&MapTrack::from_glib_borrow(this).unsafe_cast(), &from_glib_borrow(arg1))
+            f(&MapTrack::from_glib_borrow(this).unsafe_cast_ref(), &from_glib_borrow(arg1))
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"point-added\0".as_ptr() as *const _,
-                Some(transmute(point_added_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(point_added_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -303,12 +303,12 @@ impl<O: IsA<MapTrack>> MapTrackExt for O {
             where P: IsA<MapTrack>
         {
             let f: &F = &*(f as *const F);
-            f(&MapTrack::from_glib_borrow(this).unsafe_cast(), object)
+            f(&MapTrack::from_glib_borrow(this).unsafe_cast_ref(), object)
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"point-changed\0".as_ptr() as *const _,
-                Some(transmute(point_changed_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(point_changed_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -317,12 +317,12 @@ impl<O: IsA<MapTrack>> MapTrackExt for O {
             where P: IsA<MapTrack>
         {
             let f: &F = &*(f as *const F);
-            f(&MapTrack::from_glib_borrow(this).unsafe_cast(), object)
+            f(&MapTrack::from_glib_borrow(this).unsafe_cast_ref(), object)
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"point-inserted\0".as_ptr() as *const _,
-                Some(transmute(point_inserted_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(point_inserted_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -331,12 +331,12 @@ impl<O: IsA<MapTrack>> MapTrackExt for O {
             where P: IsA<MapTrack>
         {
             let f: &F = &*(f as *const F);
-            f(&MapTrack::from_glib_borrow(this).unsafe_cast(), object)
+            f(&MapTrack::from_glib_borrow(this).unsafe_cast_ref(), object)
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"point-removed\0".as_ptr() as *const _,
-                Some(transmute(point_removed_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(point_removed_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -345,12 +345,12 @@ impl<O: IsA<MapTrack>> MapTrackExt for O {
             where P: IsA<MapTrack>
         {
             let f: &F = &*(f as *const F);
-            f(&MapTrack::from_glib_borrow(this).unsafe_cast())
+            f(&MapTrack::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::alpha\0".as_ptr() as *const _,
-                Some(transmute(notify_alpha_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_alpha_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -359,12 +359,12 @@ impl<O: IsA<MapTrack>> MapTrackExt for O {
             where P: IsA<MapTrack>
         {
             let f: &F = &*(f as *const F);
-            f(&MapTrack::from_glib_borrow(this).unsafe_cast())
+            f(&MapTrack::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::color\0".as_ptr() as *const _,
-                Some(transmute(notify_color_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_color_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -373,12 +373,12 @@ impl<O: IsA<MapTrack>> MapTrackExt for O {
             where P: IsA<MapTrack>
         {
             let f: &F = &*(f as *const F);
-            f(&MapTrack::from_glib_borrow(this).unsafe_cast())
+            f(&MapTrack::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::editable\0".as_ptr() as *const _,
-                Some(transmute(notify_editable_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_editable_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -387,12 +387,12 @@ impl<O: IsA<MapTrack>> MapTrackExt for O {
             where P: IsA<MapTrack>
         {
             let f: &F = &*(f as *const F);
-            f(&MapTrack::from_glib_borrow(this).unsafe_cast())
+            f(&MapTrack::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::line-width\0".as_ptr() as *const _,
-                Some(transmute(notify_line_width_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_line_width_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -401,12 +401,12 @@ impl<O: IsA<MapTrack>> MapTrackExt for O {
             where P: IsA<MapTrack>
         {
             let f: &F = &*(f as *const F);
-            f(&MapTrack::from_glib_borrow(this).unsafe_cast())
+            f(&MapTrack::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::visible\0".as_ptr() as *const _,
-                Some(transmute(notify_visible_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_visible_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 }

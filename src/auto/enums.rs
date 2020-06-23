@@ -8,6 +8,7 @@ use std::fmt;
 
 #[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[derive(Clone, Copy)]
+#[non_exhaustive]
 pub enum MapKey_t {
     Fullscreen,
     Zoomin,
@@ -76,6 +77,7 @@ impl FromGlib<osm_gps_map_sys::OsmGpsMapKey_t> for MapKey_t {
 
 #[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[derive(Clone, Copy)]
+#[non_exhaustive]
 pub enum MapSource_t {
     Null,
     Openstreetmap,

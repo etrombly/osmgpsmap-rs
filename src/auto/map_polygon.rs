@@ -2,21 +2,21 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use MapTrack;
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
 use glib::StaticType;
 use glib::ToValue;
 use glib::Value;
-use glib::object::Cast;
-use glib::object::IsA;
-use glib::signal::SignalHandlerId;
-use glib::signal::connect_raw;
-use glib::translate::*;
 use glib_sys;
 use gobject_sys;
 use osm_gps_map_sys;
 use std::boxed::Box as Box_;
 use std::fmt;
 use std::mem::transmute;
+use MapTrack;
 
 glib_wrapper! {
     pub struct MapPolygon(Object<osm_gps_map_sys::OsmGpsMapPolygon, osm_gps_map_sys::OsmGpsMapPolygonClass, MapPolygonClass>);
@@ -41,6 +41,7 @@ impl Default for MapPolygon {
     }
 }
 
+#[derive(Clone, Default)]
 pub struct MapPolygonBuilder {
     breakable: Option<bool>,
     editable: Option<bool>,
@@ -52,14 +53,9 @@ pub struct MapPolygonBuilder {
 
 impl MapPolygonBuilder {
     pub fn new() -> Self {
-        Self {
-            breakable: None,
-            editable: None,
-            shade_alpha: None,
-            shaded: None,
-            visible: None,
-        }
+        Self::default()
     }
+
 
     pub fn build(self) -> MapPolygon {
         let mut properties: Vec<(&str, &dyn ToValue)> = vec![];
@@ -78,7 +74,11 @@ impl MapPolygonBuilder {
         if let Some(ref visible) = self.visible {
             properties.push(("visible", visible));
         }
-        glib::Object::new(MapPolygon::static_type(), &properties).expect("object new").downcast().expect("downcast")
+        let ret = glib::Object::new(MapPolygon::static_type(), &properties)
+            .expect("object new")
+            .downcast::<MapPolygon>()
+            .expect("downcast");
+    ret
     }
 
     pub fn breakable(mut self, breakable: bool) -> Self {
@@ -158,7 +158,7 @@ impl<O: IsA<MapPolygon>> MapPolygonExt for O {
         unsafe {
             let mut value = Value::from_type(<bool as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"breakable\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `breakable` getter").unwrap()
         }
     }
 
@@ -172,7 +172,7 @@ impl<O: IsA<MapPolygon>> MapPolygonExt for O {
         unsafe {
             let mut value = Value::from_type(<bool as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"editable\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `editable` getter").unwrap()
         }
     }
 
@@ -186,7 +186,7 @@ impl<O: IsA<MapPolygon>> MapPolygonExt for O {
         unsafe {
             let mut value = Value::from_type(<f32 as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"shade-alpha\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `shade-alpha` getter").unwrap()
         }
     }
 
@@ -200,7 +200,7 @@ impl<O: IsA<MapPolygon>> MapPolygonExt for O {
         unsafe {
             let mut value = Value::from_type(<bool as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"shaded\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `shaded` getter").unwrap()
         }
     }
 
@@ -220,7 +220,7 @@ impl<O: IsA<MapPolygon>> MapPolygonExt for O {
         unsafe {
             let mut value = Value::from_type(<bool as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"visible\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `visible` getter").unwrap()
         }
     }
 
@@ -235,12 +235,12 @@ impl<O: IsA<MapPolygon>> MapPolygonExt for O {
             where P: IsA<MapPolygon>
         {
             let f: &F = &*(f as *const F);
-            f(&MapPolygon::from_glib_borrow(this).unsafe_cast())
+            f(&MapPolygon::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::breakable\0".as_ptr() as *const _,
-                Some(transmute(notify_breakable_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_breakable_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -249,12 +249,12 @@ impl<O: IsA<MapPolygon>> MapPolygonExt for O {
             where P: IsA<MapPolygon>
         {
             let f: &F = &*(f as *const F);
-            f(&MapPolygon::from_glib_borrow(this).unsafe_cast())
+            f(&MapPolygon::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::editable\0".as_ptr() as *const _,
-                Some(transmute(notify_editable_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_editable_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -263,12 +263,12 @@ impl<O: IsA<MapPolygon>> MapPolygonExt for O {
             where P: IsA<MapPolygon>
         {
             let f: &F = &*(f as *const F);
-            f(&MapPolygon::from_glib_borrow(this).unsafe_cast())
+            f(&MapPolygon::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::shade-alpha\0".as_ptr() as *const _,
-                Some(transmute(notify_shade_alpha_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_shade_alpha_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -277,12 +277,12 @@ impl<O: IsA<MapPolygon>> MapPolygonExt for O {
             where P: IsA<MapPolygon>
         {
             let f: &F = &*(f as *const F);
-            f(&MapPolygon::from_glib_borrow(this).unsafe_cast())
+            f(&MapPolygon::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::shaded\0".as_ptr() as *const _,
-                Some(transmute(notify_shaded_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_shaded_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -291,12 +291,12 @@ impl<O: IsA<MapPolygon>> MapPolygonExt for O {
             where P: IsA<MapPolygon>
         {
             let f: &F = &*(f as *const F);
-            f(&MapPolygon::from_glib_borrow(this).unsafe_cast())
+            f(&MapPolygon::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::track\0".as_ptr() as *const _,
-                Some(transmute(notify_track_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_track_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -305,12 +305,12 @@ impl<O: IsA<MapPolygon>> MapPolygonExt for O {
             where P: IsA<MapPolygon>
         {
             let f: &F = &*(f as *const F);
-            f(&MapPolygon::from_glib_borrow(this).unsafe_cast())
+            f(&MapPolygon::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::visible\0".as_ptr() as *const _,
-                Some(transmute(notify_visible_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_visible_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 }

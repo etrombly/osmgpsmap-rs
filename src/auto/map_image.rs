@@ -2,24 +2,24 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use MapPoint;
 use cairo;
 use gdk;
 use gdk_pixbuf;
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
 use glib::StaticType;
 use glib::ToValue;
 use glib::Value;
-use glib::object::Cast;
-use glib::object::IsA;
-use glib::signal::SignalHandlerId;
-use glib::signal::connect_raw;
-use glib::translate::*;
 use glib_sys;
 use gobject_sys;
 use osm_gps_map_sys;
 use std::boxed::Box as Box_;
 use std::fmt;
 use std::mem::transmute;
+use MapPoint;
 
 glib_wrapper! {
     pub struct MapImage(Object<osm_gps_map_sys::OsmGpsMapImage, osm_gps_map_sys::OsmGpsMapImageClass, MapImageClass>);
@@ -44,6 +44,7 @@ impl Default for MapImage {
     }
 }
 
+#[derive(Clone, Default)]
 pub struct MapImageBuilder {
     pixbuf: Option<gdk_pixbuf::Pixbuf>,
     point: Option<MapPoint>,
@@ -55,15 +56,9 @@ pub struct MapImageBuilder {
 
 impl MapImageBuilder {
     pub fn new() -> Self {
-        Self {
-            pixbuf: None,
-            point: None,
-            rotation: None,
-            x_align: None,
-            y_align: None,
-            z_order: None,
-        }
+        Self::default()
     }
+
 
     pub fn build(self) -> MapImage {
         let mut properties: Vec<(&str, &dyn ToValue)> = vec![];
@@ -85,7 +80,11 @@ impl MapImageBuilder {
         if let Some(ref z_order) = self.z_order {
             properties.push(("z-order", z_order));
         }
-        glib::Object::new(MapImage::static_type(), &properties).expect("object new").downcast().expect("downcast")
+        let ret = glib::Object::new(MapImage::static_type(), &properties)
+            .expect("object new")
+            .downcast::<MapImage>()
+            .expect("downcast");
+    ret
     }
 
     pub fn pixbuf(mut self, pixbuf: &gdk_pixbuf::Pixbuf) -> Self {
@@ -198,7 +197,7 @@ impl<O: IsA<MapImage>> MapImageExt for O {
         unsafe {
             let mut value = Value::from_type(<gdk_pixbuf::Pixbuf as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"pixbuf\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get()
+            value.get().expect("Return Value for property `pixbuf` getter")
         }
     }
 
@@ -218,7 +217,7 @@ impl<O: IsA<MapImage>> MapImageExt for O {
         unsafe {
             let mut value = Value::from_type(<f32 as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"x-align\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `x-align` getter").unwrap()
         }
     }
 
@@ -232,7 +231,7 @@ impl<O: IsA<MapImage>> MapImageExt for O {
         unsafe {
             let mut value = Value::from_type(<f32 as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"y-align\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `y-align` getter").unwrap()
         }
     }
 
@@ -246,7 +245,7 @@ impl<O: IsA<MapImage>> MapImageExt for O {
         unsafe {
             let mut value = Value::from_type(<i32 as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"z-order\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `z-order` getter").unwrap()
         }
     }
 
@@ -261,12 +260,12 @@ impl<O: IsA<MapImage>> MapImageExt for O {
             where P: IsA<MapImage>
         {
             let f: &F = &*(f as *const F);
-            f(&MapImage::from_glib_borrow(this).unsafe_cast())
+            f(&MapImage::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::pixbuf\0".as_ptr() as *const _,
-                Some(transmute(notify_pixbuf_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_pixbuf_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -275,12 +274,12 @@ impl<O: IsA<MapImage>> MapImageExt for O {
             where P: IsA<MapImage>
         {
             let f: &F = &*(f as *const F);
-            f(&MapImage::from_glib_borrow(this).unsafe_cast())
+            f(&MapImage::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::point\0".as_ptr() as *const _,
-                Some(transmute(notify_point_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_point_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -289,12 +288,12 @@ impl<O: IsA<MapImage>> MapImageExt for O {
             where P: IsA<MapImage>
         {
             let f: &F = &*(f as *const F);
-            f(&MapImage::from_glib_borrow(this).unsafe_cast())
+            f(&MapImage::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::rotation\0".as_ptr() as *const _,
-                Some(transmute(notify_rotation_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_rotation_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -303,12 +302,12 @@ impl<O: IsA<MapImage>> MapImageExt for O {
             where P: IsA<MapImage>
         {
             let f: &F = &*(f as *const F);
-            f(&MapImage::from_glib_borrow(this).unsafe_cast())
+            f(&MapImage::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::x-align\0".as_ptr() as *const _,
-                Some(transmute(notify_x_align_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_x_align_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -317,12 +316,12 @@ impl<O: IsA<MapImage>> MapImageExt for O {
             where P: IsA<MapImage>
         {
             let f: &F = &*(f as *const F);
-            f(&MapImage::from_glib_borrow(this).unsafe_cast())
+            f(&MapImage::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::y-align\0".as_ptr() as *const _,
-                Some(transmute(notify_y_align_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_y_align_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -331,12 +330,12 @@ impl<O: IsA<MapImage>> MapImageExt for O {
             where P: IsA<MapImage>
         {
             let f: &F = &*(f as *const F);
-            f(&MapImage::from_glib_borrow(this).unsafe_cast())
+            f(&MapImage::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::z-order\0".as_ptr() as *const _,
-                Some(transmute(notify_z_order_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_z_order_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 }

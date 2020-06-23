@@ -2,21 +2,21 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use MapLayer;
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
 use glib::StaticType;
 use glib::ToValue;
 use glib::Value;
-use glib::object::Cast;
-use glib::object::IsA;
-use glib::signal::SignalHandlerId;
-use glib::signal::connect_raw;
-use glib::translate::*;
 use glib_sys;
 use gobject_sys;
 use osm_gps_map_sys;
 use std::boxed::Box as Box_;
 use std::fmt;
 use std::mem::transmute;
+use MapLayer;
 
 glib_wrapper! {
     pub struct MapOsd(Object<osm_gps_map_sys::OsmGpsMapOsd, osm_gps_map_sys::OsmGpsMapOsdClass, MapOsdClass>) @implements MapLayer;
@@ -41,6 +41,7 @@ impl Default for MapOsd {
     }
 }
 
+#[derive(Clone, Default)]
 pub struct MapOsdBuilder {
     dpad_radius: Option<u32>,
     osd_x: Option<i32>,
@@ -57,20 +58,9 @@ pub struct MapOsdBuilder {
 
 impl MapOsdBuilder {
     pub fn new() -> Self {
-        Self {
-            dpad_radius: None,
-            osd_x: None,
-            osd_y: None,
-            show_coordinates: None,
-            show_copyright: None,
-            show_crosshair: None,
-            show_dpad: None,
-            show_gps_in_dpad: None,
-            show_gps_in_zoom: None,
-            show_scale: None,
-            show_zoom: None,
-        }
+        Self::default()
     }
+
 
     pub fn build(self) -> MapOsd {
         let mut properties: Vec<(&str, &dyn ToValue)> = vec![];
@@ -107,7 +97,11 @@ impl MapOsdBuilder {
         if let Some(ref show_zoom) = self.show_zoom {
             properties.push(("show-zoom", show_zoom));
         }
-        glib::Object::new(MapOsd::static_type(), &properties).expect("object new").downcast().expect("downcast")
+        let ret = glib::Object::new(MapOsd::static_type(), &properties)
+            .expect("object new")
+            .downcast::<MapOsd>()
+            .expect("downcast");
+    ret
     }
 
     pub fn dpad_radius(mut self, dpad_radius: u32) -> Self {
@@ -241,7 +235,7 @@ impl<O: IsA<MapOsd>> MapOsdExt for O {
         unsafe {
             let mut value = Value::from_type(<u32 as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"dpad-radius\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `dpad-radius` getter").unwrap()
         }
     }
 
@@ -255,7 +249,7 @@ impl<O: IsA<MapOsd>> MapOsdExt for O {
         unsafe {
             let mut value = Value::from_type(<i32 as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"osd-x\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `osd-x` getter").unwrap()
         }
     }
 
@@ -269,7 +263,7 @@ impl<O: IsA<MapOsd>> MapOsdExt for O {
         unsafe {
             let mut value = Value::from_type(<i32 as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"osd-y\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `osd-y` getter").unwrap()
         }
     }
 
@@ -283,7 +277,7 @@ impl<O: IsA<MapOsd>> MapOsdExt for O {
         unsafe {
             let mut value = Value::from_type(<bool as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"show-coordinates\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `show-coordinates` getter").unwrap()
         }
     }
 
@@ -297,7 +291,7 @@ impl<O: IsA<MapOsd>> MapOsdExt for O {
         unsafe {
             let mut value = Value::from_type(<bool as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"show-copyright\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `show-copyright` getter").unwrap()
         }
     }
 
@@ -311,7 +305,7 @@ impl<O: IsA<MapOsd>> MapOsdExt for O {
         unsafe {
             let mut value = Value::from_type(<bool as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"show-crosshair\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `show-crosshair` getter").unwrap()
         }
     }
 
@@ -325,7 +319,7 @@ impl<O: IsA<MapOsd>> MapOsdExt for O {
         unsafe {
             let mut value = Value::from_type(<bool as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"show-dpad\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `show-dpad` getter").unwrap()
         }
     }
 
@@ -339,7 +333,7 @@ impl<O: IsA<MapOsd>> MapOsdExt for O {
         unsafe {
             let mut value = Value::from_type(<bool as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"show-gps-in-dpad\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `show-gps-in-dpad` getter").unwrap()
         }
     }
 
@@ -353,7 +347,7 @@ impl<O: IsA<MapOsd>> MapOsdExt for O {
         unsafe {
             let mut value = Value::from_type(<bool as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"show-gps-in-zoom\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `show-gps-in-zoom` getter").unwrap()
         }
     }
 
@@ -367,7 +361,7 @@ impl<O: IsA<MapOsd>> MapOsdExt for O {
         unsafe {
             let mut value = Value::from_type(<bool as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"show-scale\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `show-scale` getter").unwrap()
         }
     }
 
@@ -381,7 +375,7 @@ impl<O: IsA<MapOsd>> MapOsdExt for O {
         unsafe {
             let mut value = Value::from_type(<bool as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"show-zoom\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `show-zoom` getter").unwrap()
         }
     }
 
@@ -396,12 +390,12 @@ impl<O: IsA<MapOsd>> MapOsdExt for O {
             where P: IsA<MapOsd>
         {
             let f: &F = &*(f as *const F);
-            f(&MapOsd::from_glib_borrow(this).unsafe_cast())
+            f(&MapOsd::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::dpad-radius\0".as_ptr() as *const _,
-                Some(transmute(notify_dpad_radius_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_dpad_radius_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -410,12 +404,12 @@ impl<O: IsA<MapOsd>> MapOsdExt for O {
             where P: IsA<MapOsd>
         {
             let f: &F = &*(f as *const F);
-            f(&MapOsd::from_glib_borrow(this).unsafe_cast())
+            f(&MapOsd::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::osd-x\0".as_ptr() as *const _,
-                Some(transmute(notify_osd_x_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_osd_x_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -424,12 +418,12 @@ impl<O: IsA<MapOsd>> MapOsdExt for O {
             where P: IsA<MapOsd>
         {
             let f: &F = &*(f as *const F);
-            f(&MapOsd::from_glib_borrow(this).unsafe_cast())
+            f(&MapOsd::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::osd-y\0".as_ptr() as *const _,
-                Some(transmute(notify_osd_y_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_osd_y_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -438,12 +432,12 @@ impl<O: IsA<MapOsd>> MapOsdExt for O {
             where P: IsA<MapOsd>
         {
             let f: &F = &*(f as *const F);
-            f(&MapOsd::from_glib_borrow(this).unsafe_cast())
+            f(&MapOsd::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::show-coordinates\0".as_ptr() as *const _,
-                Some(transmute(notify_show_coordinates_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_show_coordinates_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -452,12 +446,12 @@ impl<O: IsA<MapOsd>> MapOsdExt for O {
             where P: IsA<MapOsd>
         {
             let f: &F = &*(f as *const F);
-            f(&MapOsd::from_glib_borrow(this).unsafe_cast())
+            f(&MapOsd::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::show-copyright\0".as_ptr() as *const _,
-                Some(transmute(notify_show_copyright_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_show_copyright_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -466,12 +460,12 @@ impl<O: IsA<MapOsd>> MapOsdExt for O {
             where P: IsA<MapOsd>
         {
             let f: &F = &*(f as *const F);
-            f(&MapOsd::from_glib_borrow(this).unsafe_cast())
+            f(&MapOsd::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::show-crosshair\0".as_ptr() as *const _,
-                Some(transmute(notify_show_crosshair_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_show_crosshair_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -480,12 +474,12 @@ impl<O: IsA<MapOsd>> MapOsdExt for O {
             where P: IsA<MapOsd>
         {
             let f: &F = &*(f as *const F);
-            f(&MapOsd::from_glib_borrow(this).unsafe_cast())
+            f(&MapOsd::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::show-dpad\0".as_ptr() as *const _,
-                Some(transmute(notify_show_dpad_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_show_dpad_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -494,12 +488,12 @@ impl<O: IsA<MapOsd>> MapOsdExt for O {
             where P: IsA<MapOsd>
         {
             let f: &F = &*(f as *const F);
-            f(&MapOsd::from_glib_borrow(this).unsafe_cast())
+            f(&MapOsd::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::show-gps-in-dpad\0".as_ptr() as *const _,
-                Some(transmute(notify_show_gps_in_dpad_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_show_gps_in_dpad_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -508,12 +502,12 @@ impl<O: IsA<MapOsd>> MapOsdExt for O {
             where P: IsA<MapOsd>
         {
             let f: &F = &*(f as *const F);
-            f(&MapOsd::from_glib_borrow(this).unsafe_cast())
+            f(&MapOsd::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::show-gps-in-zoom\0".as_ptr() as *const _,
-                Some(transmute(notify_show_gps_in_zoom_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_show_gps_in_zoom_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -522,12 +516,12 @@ impl<O: IsA<MapOsd>> MapOsdExt for O {
             where P: IsA<MapOsd>
         {
             let f: &F = &*(f as *const F);
-            f(&MapOsd::from_glib_borrow(this).unsafe_cast())
+            f(&MapOsd::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::show-scale\0".as_ptr() as *const _,
-                Some(transmute(notify_show_scale_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_show_scale_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -536,12 +530,12 @@ impl<O: IsA<MapOsd>> MapOsdExt for O {
             where P: IsA<MapOsd>
         {
             let f: &F = &*(f as *const F);
-            f(&MapOsd::from_glib_borrow(this).unsafe_cast())
+            f(&MapOsd::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::show-zoom\0".as_ptr() as *const _,
-                Some(transmute(notify_show_zoom_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_show_zoom_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 }

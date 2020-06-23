@@ -2,24 +2,17 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use MapImage;
-use MapKey_t;
-use MapLayer;
-use MapPoint;
-use MapPolygon;
-use MapSource_t;
-use MapTrack;
 use gdk;
 use gdk_pixbuf;
+use glib::object::Cast;
+use glib::object::IsA;
+use glib::signal::connect_raw;
+use glib::signal::SignalHandlerId;
+use glib::translate::*;
 use glib::GString;
 use glib::StaticType;
 use glib::ToValue;
 use glib::Value;
-use glib::object::Cast;
-use glib::object::IsA;
-use glib::signal::SignalHandlerId;
-use glib::signal::connect_raw;
-use glib::translate::*;
 use glib_sys;
 use gobject_sys;
 use gtk;
@@ -28,6 +21,13 @@ use std::boxed::Box as Box_;
 use std::fmt;
 use std::mem;
 use std::mem::transmute;
+use MapImage;
+use MapKey_t;
+use MapLayer;
+use MapPoint;
+use MapPolygon;
+use MapSource_t;
+use MapTrack;
 
 glib_wrapper! {
     pub struct Map(Object<osm_gps_map_sys::OsmGpsMap, osm_gps_map_sys::OsmGpsMapClass, MapClass>) @extends gtk::DrawingArea, gtk::Widget, @implements gtk::Buildable;
@@ -108,6 +108,7 @@ impl Default for Map {
     }
 }
 
+#[derive(Clone, Default)]
 pub struct MapBuilder {
     auto_center: Option<bool>,
     auto_center_threshold: Option<f32>,
@@ -190,81 +191,9 @@ pub struct MapBuilder {
 
 impl MapBuilder {
     pub fn new() -> Self {
-        Self {
-            auto_center: None,
-            auto_center_threshold: None,
-            auto_download: None,
-            drag_limit: None,
-            gps_track_highlight_radius: None,
-            gps_track_point_radius: None,
-            gps_track_width: None,
-            image_format: None,
-            map_source: None,
-            map_x: None,
-            map_y: None,
-            max_zoom: None,
-            min_zoom: None,
-            proxy_uri: None,
-            record_trip_history: None,
-            repo_uri: None,
-            show_gps_point: None,
-            show_trip_history: None,
-            tile_cache: None,
-            tile_cache_base: None,
-            tile_zoom_offset: None,
-            user_agent: None,
-            zoom: None,
-            app_paintable: None,
-            can_default: None,
-            can_focus: None,
-            #[cfg(any(feature = "v2_18", feature = "dox"))]
-            double_buffered: None,
-            #[cfg(any(feature = "v3_0", feature = "dox"))]
-            expand: None,
-            #[cfg(any(feature = "v3_20", feature = "dox"))]
-            focus_on_click: None,
-            has_default: None,
-            has_focus: None,
-            #[cfg(any(feature = "v2_12", feature = "dox"))]
-            has_tooltip: None,
-            height_request: None,
-            #[cfg(any(feature = "v3_0", feature = "dox"))]
-            hexpand: None,
-            #[cfg(any(feature = "v3_0", feature = "dox"))]
-            hexpand_set: None,
-            is_focus: None,
-            #[cfg(any(feature = "v3_0", feature = "dox"))]
-            margin: None,
-            #[cfg(any(feature = "v3_0", feature = "dox"))]
-            margin_bottom: None,
-            #[cfg(any(feature = "v3_12", feature = "dox"))]
-            margin_end: None,
-            #[cfg(any(feature = "v3_0", feature = "dox"))]
-            margin_left: None,
-            #[cfg(any(feature = "v3_0", feature = "dox"))]
-            margin_right: None,
-            #[cfg(any(feature = "v3_12", feature = "dox"))]
-            margin_start: None,
-            #[cfg(any(feature = "v3_0", feature = "dox"))]
-            margin_top: None,
-            name: None,
-            no_show_all: None,
-            #[cfg(any(feature = "v3_8", feature = "dox"))]
-            opacity: None,
-            receives_default: None,
-            sensitive: None,
-            #[cfg(any(feature = "v2_12", feature = "dox"))]
-            tooltip_markup: None,
-            #[cfg(any(feature = "v2_12", feature = "dox"))]
-            tooltip_text: None,
-            #[cfg(any(feature = "v3_0", feature = "dox"))]
-            vexpand: None,
-            #[cfg(any(feature = "v3_0", feature = "dox"))]
-            vexpand_set: None,
-            visible: None,
-            width_request: None,
-        }
+        Self::default()
     }
+
 
     pub fn build(self) -> Map {
         let mut properties: Vec<(&str, &dyn ToValue)> = vec![];
@@ -484,7 +413,11 @@ impl MapBuilder {
         if let Some(ref width_request) = self.width_request {
             properties.push(("width-request", width_request));
         }
-        glib::Object::new(Map::static_type(), &properties).expect("object new").downcast().expect("downcast")
+        let ret = glib::Object::new(Map::static_type(), &properties)
+            .expect("object new")
+            .downcast::<Map>()
+            .expect("downcast");
+    ret
     }
 
     pub fn auto_center(mut self, auto_center: bool) -> Self {
@@ -1191,7 +1124,7 @@ impl<O: IsA<Map>> MapExt for O {
         unsafe {
             let mut value = Value::from_type(<bool as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"auto-center\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `auto-center` getter").unwrap()
         }
     }
 
@@ -1205,7 +1138,7 @@ impl<O: IsA<Map>> MapExt for O {
         unsafe {
             let mut value = Value::from_type(<f32 as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"auto-center-threshold\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `auto-center-threshold` getter").unwrap()
         }
     }
 
@@ -1219,7 +1152,7 @@ impl<O: IsA<Map>> MapExt for O {
         unsafe {
             let mut value = Value::from_type(<bool as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"auto-download\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `auto-download` getter").unwrap()
         }
     }
 
@@ -1233,7 +1166,7 @@ impl<O: IsA<Map>> MapExt for O {
         unsafe {
             let mut value = Value::from_type(<i32 as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"drag-limit\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `drag-limit` getter").unwrap()
         }
     }
 
@@ -1241,7 +1174,7 @@ impl<O: IsA<Map>> MapExt for O {
         unsafe {
             let mut value = Value::from_type(<i32 as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"gps-track-highlight-radius\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `gps-track-highlight-radius` getter").unwrap()
         }
     }
 
@@ -1255,7 +1188,7 @@ impl<O: IsA<Map>> MapExt for O {
         unsafe {
             let mut value = Value::from_type(<i32 as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"gps-track-point-radius\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `gps-track-point-radius` getter").unwrap()
         }
     }
 
@@ -1269,7 +1202,7 @@ impl<O: IsA<Map>> MapExt for O {
         unsafe {
             let mut value = Value::from_type(<f32 as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"gps-track-width\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `gps-track-width` getter").unwrap()
         }
     }
 
@@ -1283,7 +1216,7 @@ impl<O: IsA<Map>> MapExt for O {
         unsafe {
             let mut value = Value::from_type(<GString as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"image-format\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get()
+            value.get().expect("Return Value for property `image-format` getter")
         }
     }
 
@@ -1291,7 +1224,7 @@ impl<O: IsA<Map>> MapExt for O {
         unsafe {
             let mut value = Value::from_type(<f32 as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"latitude\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `latitude` getter").unwrap()
         }
     }
 
@@ -1299,7 +1232,7 @@ impl<O: IsA<Map>> MapExt for O {
         unsafe {
             let mut value = Value::from_type(<f32 as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"longitude\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `longitude` getter").unwrap()
         }
     }
 
@@ -1307,7 +1240,7 @@ impl<O: IsA<Map>> MapExt for O {
         unsafe {
             let mut value = Value::from_type(<i32 as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"map-source\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `map-source` getter").unwrap()
         }
     }
 
@@ -1321,7 +1254,7 @@ impl<O: IsA<Map>> MapExt for O {
         unsafe {
             let mut value = Value::from_type(<i32 as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"map-x\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `map-x` getter").unwrap()
         }
     }
 
@@ -1329,7 +1262,7 @@ impl<O: IsA<Map>> MapExt for O {
         unsafe {
             let mut value = Value::from_type(<i32 as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"map-y\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `map-y` getter").unwrap()
         }
     }
 
@@ -1337,7 +1270,7 @@ impl<O: IsA<Map>> MapExt for O {
         unsafe {
             let mut value = Value::from_type(<i32 as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"max-zoom\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `max-zoom` getter").unwrap()
         }
     }
 
@@ -1345,7 +1278,7 @@ impl<O: IsA<Map>> MapExt for O {
         unsafe {
             let mut value = Value::from_type(<i32 as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"min-zoom\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `min-zoom` getter").unwrap()
         }
     }
 
@@ -1353,7 +1286,7 @@ impl<O: IsA<Map>> MapExt for O {
         unsafe {
             let mut value = Value::from_type(<GString as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"proxy-uri\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get()
+            value.get().expect("Return Value for property `proxy-uri` getter")
         }
     }
 
@@ -1361,7 +1294,7 @@ impl<O: IsA<Map>> MapExt for O {
         unsafe {
             let mut value = Value::from_type(<bool as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"record-trip-history\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `record-trip-history` getter").unwrap()
         }
     }
 
@@ -1375,7 +1308,7 @@ impl<O: IsA<Map>> MapExt for O {
         unsafe {
             let mut value = Value::from_type(<GString as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"repo-uri\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get()
+            value.get().expect("Return Value for property `repo-uri` getter")
         }
     }
 
@@ -1383,7 +1316,7 @@ impl<O: IsA<Map>> MapExt for O {
         unsafe {
             let mut value = Value::from_type(<bool as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"show-gps-point\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `show-gps-point` getter").unwrap()
         }
     }
 
@@ -1397,7 +1330,7 @@ impl<O: IsA<Map>> MapExt for O {
         unsafe {
             let mut value = Value::from_type(<bool as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"show-trip-history\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `show-trip-history` getter").unwrap()
         }
     }
 
@@ -1411,7 +1344,7 @@ impl<O: IsA<Map>> MapExt for O {
         unsafe {
             let mut value = Value::from_type(<GString as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"tile-cache\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get()
+            value.get().expect("Return Value for property `tile-cache` getter")
         }
     }
 
@@ -1425,7 +1358,7 @@ impl<O: IsA<Map>> MapExt for O {
         unsafe {
             let mut value = Value::from_type(<GString as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"tile-cache-base\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get()
+            value.get().expect("Return Value for property `tile-cache-base` getter")
         }
     }
 
@@ -1433,7 +1366,7 @@ impl<O: IsA<Map>> MapExt for O {
         unsafe {
             let mut value = Value::from_type(<i32 as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"tile-zoom-offset\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `tile-zoom-offset` getter").unwrap()
         }
     }
 
@@ -1441,7 +1374,7 @@ impl<O: IsA<Map>> MapExt for O {
         unsafe {
             let mut value = Value::from_type(<i32 as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"tiles-queued\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `tiles-queued` getter").unwrap()
         }
     }
 
@@ -1449,7 +1382,7 @@ impl<O: IsA<Map>> MapExt for O {
         unsafe {
             let mut value = Value::from_type(<GString as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"user-agent\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get()
+            value.get().expect("Return Value for property `user-agent` getter")
         }
     }
 
@@ -1463,7 +1396,7 @@ impl<O: IsA<Map>> MapExt for O {
         unsafe {
             let mut value = Value::from_type(<i32 as StaticType>::static_type());
             gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"zoom\0".as_ptr() as *const _, value.to_glib_none_mut().0);
-            value.get().unwrap()
+            value.get().expect("Return Value for property `zoom` getter").unwrap()
         }
     }
 
@@ -1472,12 +1405,12 @@ impl<O: IsA<Map>> MapExt for O {
             where P: IsA<Map>
         {
             let f: &F = &*(f as *const F);
-            f(&Map::from_glib_borrow(this).unsafe_cast())
+            f(&Map::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"changed\0".as_ptr() as *const _,
-                Some(transmute(changed_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(changed_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -1486,12 +1419,12 @@ impl<O: IsA<Map>> MapExt for O {
             where P: IsA<Map>
         {
             let f: &F = &*(f as *const F);
-            f(&Map::from_glib_borrow(this).unsafe_cast())
+            f(&Map::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::auto-center\0".as_ptr() as *const _,
-                Some(transmute(notify_auto_center_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_auto_center_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -1500,12 +1433,12 @@ impl<O: IsA<Map>> MapExt for O {
             where P: IsA<Map>
         {
             let f: &F = &*(f as *const F);
-            f(&Map::from_glib_borrow(this).unsafe_cast())
+            f(&Map::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::auto-center-threshold\0".as_ptr() as *const _,
-                Some(transmute(notify_auto_center_threshold_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_auto_center_threshold_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -1514,12 +1447,12 @@ impl<O: IsA<Map>> MapExt for O {
             where P: IsA<Map>
         {
             let f: &F = &*(f as *const F);
-            f(&Map::from_glib_borrow(this).unsafe_cast())
+            f(&Map::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::auto-download\0".as_ptr() as *const _,
-                Some(transmute(notify_auto_download_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_auto_download_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -1528,12 +1461,12 @@ impl<O: IsA<Map>> MapExt for O {
             where P: IsA<Map>
         {
             let f: &F = &*(f as *const F);
-            f(&Map::from_glib_borrow(this).unsafe_cast())
+            f(&Map::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::gps-track-highlight-radius\0".as_ptr() as *const _,
-                Some(transmute(notify_gps_track_highlight_radius_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_gps_track_highlight_radius_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -1542,12 +1475,12 @@ impl<O: IsA<Map>> MapExt for O {
             where P: IsA<Map>
         {
             let f: &F = &*(f as *const F);
-            f(&Map::from_glib_borrow(this).unsafe_cast())
+            f(&Map::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::gps-track-point-radius\0".as_ptr() as *const _,
-                Some(transmute(notify_gps_track_point_radius_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_gps_track_point_radius_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -1556,12 +1489,12 @@ impl<O: IsA<Map>> MapExt for O {
             where P: IsA<Map>
         {
             let f: &F = &*(f as *const F);
-            f(&Map::from_glib_borrow(this).unsafe_cast())
+            f(&Map::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::gps-track-width\0".as_ptr() as *const _,
-                Some(transmute(notify_gps_track_width_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_gps_track_width_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -1570,12 +1503,12 @@ impl<O: IsA<Map>> MapExt for O {
             where P: IsA<Map>
         {
             let f: &F = &*(f as *const F);
-            f(&Map::from_glib_borrow(this).unsafe_cast())
+            f(&Map::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::latitude\0".as_ptr() as *const _,
-                Some(transmute(notify_latitude_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_latitude_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -1584,12 +1517,12 @@ impl<O: IsA<Map>> MapExt for O {
             where P: IsA<Map>
         {
             let f: &F = &*(f as *const F);
-            f(&Map::from_glib_borrow(this).unsafe_cast())
+            f(&Map::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::longitude\0".as_ptr() as *const _,
-                Some(transmute(notify_longitude_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_longitude_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -1598,12 +1531,12 @@ impl<O: IsA<Map>> MapExt for O {
             where P: IsA<Map>
         {
             let f: &F = &*(f as *const F);
-            f(&Map::from_glib_borrow(this).unsafe_cast())
+            f(&Map::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::map-source\0".as_ptr() as *const _,
-                Some(transmute(notify_map_source_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_map_source_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -1612,12 +1545,12 @@ impl<O: IsA<Map>> MapExt for O {
             where P: IsA<Map>
         {
             let f: &F = &*(f as *const F);
-            f(&Map::from_glib_borrow(this).unsafe_cast())
+            f(&Map::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::record-trip-history\0".as_ptr() as *const _,
-                Some(transmute(notify_record_trip_history_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_record_trip_history_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -1626,12 +1559,12 @@ impl<O: IsA<Map>> MapExt for O {
             where P: IsA<Map>
         {
             let f: &F = &*(f as *const F);
-            f(&Map::from_glib_borrow(this).unsafe_cast())
+            f(&Map::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::show-gps-point\0".as_ptr() as *const _,
-                Some(transmute(notify_show_gps_point_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_show_gps_point_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -1640,12 +1573,12 @@ impl<O: IsA<Map>> MapExt for O {
             where P: IsA<Map>
         {
             let f: &F = &*(f as *const F);
-            f(&Map::from_glib_borrow(this).unsafe_cast())
+            f(&Map::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::show-trip-history\0".as_ptr() as *const _,
-                Some(transmute(notify_show_trip_history_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_show_trip_history_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -1654,12 +1587,12 @@ impl<O: IsA<Map>> MapExt for O {
             where P: IsA<Map>
         {
             let f: &F = &*(f as *const F);
-            f(&Map::from_glib_borrow(this).unsafe_cast())
+            f(&Map::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::tile-cache\0".as_ptr() as *const _,
-                Some(transmute(notify_tile_cache_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_tile_cache_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -1668,12 +1601,12 @@ impl<O: IsA<Map>> MapExt for O {
             where P: IsA<Map>
         {
             let f: &F = &*(f as *const F);
-            f(&Map::from_glib_borrow(this).unsafe_cast())
+            f(&Map::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::tiles-queued\0".as_ptr() as *const _,
-                Some(transmute(notify_tiles_queued_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_tiles_queued_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 
@@ -1682,12 +1615,12 @@ impl<O: IsA<Map>> MapExt for O {
             where P: IsA<Map>
         {
             let f: &F = &*(f as *const F);
-            f(&Map::from_glib_borrow(this).unsafe_cast())
+            f(&Map::from_glib_borrow(this).unsafe_cast_ref())
         }
         unsafe {
             let f: Box_<F> = Box_::new(f);
             connect_raw(self.as_ptr() as *mut _, b"notify::user-agent\0".as_ptr() as *const _,
-                Some(transmute(notify_user_agent_trampoline::<Self, F> as usize)), Box_::into_raw(f))
+                Some(transmute::<_, unsafe extern "C" fn()>(notify_user_agent_trampoline::<Self, F> as *const ())), Box_::into_raw(f))
         }
     }
 }

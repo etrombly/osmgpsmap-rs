@@ -2,13 +2,13 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use Map;
 use cairo;
 use gdk;
 use glib::object::IsA;
 use glib::translate::*;
 use osm_gps_map_sys;
 use std::fmt;
+use Map;
 
 glib_wrapper! {
     pub struct MapLayer(Interface<osm_gps_map_sys::OsmGpsMapLayer>);

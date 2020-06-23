@@ -3,29 +3,31 @@ name = "osmgpsmap-sys"
 description = "ffi bindings for osmgpsmap"
 license = "MIT OR Apache-2.0"
 authors = ["Eric Trombly"]
-version = "0.2.12"
+version = "0.2.14"
 links = "osm_gps_map"
 build = "build.rs"
 edition = "2018"
+[package.metadata.docs.rs]
+features = ["dox"]
 
 [lib]
 name = "osm_gps_map_sys"
 
 [dependencies]
-libc = "0.2.65"
-glib-sys = "0.9.0"
-gobject-sys = "0.9.0"
-gtk-sys = "0.9.0"
-cairo-sys-rs = "0.9.0"
-gdk-sys = "0.9.0"
-gdk-pixbuf-sys = "0.9.0"
+libc = "0.2.71"
+glib-sys = "0.9.1"
+gobject-sys = "0.9.1"
+gtk-sys = "0.9.2"
+cairo-sys-rs = "0.9.2"
+gdk-sys = "0.9.1"
+gdk-pixbuf-sys = "0.9.1"
 
 [build-dependencies]
 pkg-config = "0.3.17"
 
 [dev-dependencies]
-shell-words = "0.1.0"
-tempdir = "0.3.7"
+shell-words = "1.0.0"
+tempfile = "3.1.0"
 
 [features]
 dox = []
