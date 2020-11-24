@@ -8,12 +8,14 @@ extern crate glib;
 extern crate glib_sys;
 //extern crate gobject_sys as gobject_ffi;
 extern crate gobject_sys;
+extern crate gobject_sys as gobject;
 extern crate gtk_sys as gtk_ffi;
 extern crate gdk;
 extern crate gdk_pixbuf;
 extern crate gtk;
 extern crate libc;
 extern crate cairo;
+extern crate atk_sys as atk;
 
 pub use auto::*;
 

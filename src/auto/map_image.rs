@@ -2,23 +2,30 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use crate::MapPoint;
+use cairo;
+use gdk;
+use gdk_pixbuf;
 use glib::object::Cast;
 use glib::object::IsA;
 use glib::signal::connect_raw;
 use glib::signal::SignalHandlerId;
 use glib::translate::*;
 use glib::StaticType;
+use glib::ToValue;
 use glib::Value;
+use glib_sys;
+use gobject_sys;
+use osm_gps_map_sys;
 use std::boxed::Box as Box_;
 use std::fmt;
 use std::mem::transmute;
+use MapPoint;
 
-glib::glib_wrapper! {
-    pub struct MapImage(Object<ffi::OsmGpsMapImage, ffi::OsmGpsMapImageClass>);
+glib_wrapper! {
+    pub struct MapImage(Object<osm_gps_map_sys::OsmGpsMapImage, osm_gps_map_sys::OsmGpsMapImageClass, MapImageClass>);
 
     match fn {
-        get_type => || ffi::osm_gps_map_image_get_type(),
+        get_type => || osm_gps_map_sys::osm_gps_map_image_get_type(),
     }
 }
 
@@ -26,7 +33,7 @@ impl MapImage {
     pub fn new() -> MapImage {
         assert_initialized_main_thread!();
         unsafe {
-            from_glib_full(ffi::osm_gps_map_image_new())
+            from_glib_full(osm_gps_map_sys::osm_gps_map_image_new())
         }
     }
 }
@@ -34,6 +41,80 @@ impl MapImage {
 impl Default for MapImage {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+#[derive(Clone, Default)]
+pub struct MapImageBuilder {
+    pixbuf: Option<gdk_pixbuf::Pixbuf>,
+    point: Option<MapPoint>,
+    rotation: Option<f32>,
+    x_align: Option<f32>,
+    y_align: Option<f32>,
+    z_order: Option<i32>,
+}
+
+impl MapImageBuilder {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+
+    pub fn build(self) -> MapImage {
+        let mut properties: Vec<(&str, &dyn ToValue)> = vec![];
+        if let Some(ref pixbuf) = self.pixbuf {
+            properties.push(("pixbuf", pixbuf));
+        }
+        if let Some(ref point) = self.point {
+            properties.push(("point", point));
+        }
+        if let Some(ref rotation) = self.rotation {
+            properties.push(("rotation", rotation));
+        }
+        if let Some(ref x_align) = self.x_align {
+            properties.push(("x-align", x_align));
+        }
+        if let Some(ref y_align) = self.y_align {
+            properties.push(("y-align", y_align));
+        }
+        if let Some(ref z_order) = self.z_order {
+            properties.push(("z-order", z_order));
+        }
+        let ret = glib::Object::new(MapImage::static_type(), &properties)
+            .expect("object new")
+            .downcast::<MapImage>()
+            .expect("downcast");
+    ret
+    }
+
+    pub fn pixbuf(mut self, pixbuf: &gdk_pixbuf::Pixbuf) -> Self {
+        self.pixbuf = Some(pixbuf.clone());
+        self
+    }
+
+    pub fn point(mut self, point: &MapPoint) -> Self {
+        self.point = Some(point.clone());
+        self
+    }
+
+    pub fn rotation(mut self, rotation: f32) -> Self {
+        self.rotation = Some(rotation);
+        self
+    }
+
+    pub fn x_align(mut self, x_align: f32) -> Self {
+        self.x_align = Some(x_align);
+        self
+    }
+
+    pub fn y_align(mut self, y_align: f32) -> Self {
+        self.y_align = Some(y_align);
+        self
+    }
+
+    pub fn z_order(mut self, z_order: i32) -> Self {
+        self.z_order = Some(z_order);
+        self
     }
 }
 
@@ -84,98 +165,98 @@ pub trait MapImageExt: 'static {
 impl<O: IsA<MapImage>> MapImageExt for O {
     fn draw(&self, cr: &cairo::Context, rect: &mut gdk::Rectangle) {
         unsafe {
-            ffi::osm_gps_map_image_draw(self.as_ref().to_glib_none().0, mut_override(cr.to_glib_none().0), rect.to_glib_none_mut().0);
+            osm_gps_map_sys::osm_gps_map_image_draw(self.as_ref().to_glib_none().0, mut_override(cr.to_glib_none().0), rect.to_glib_none_mut().0);
         }
     }
 
     fn get_point(&self) -> Option<MapPoint> {
         unsafe {
-            from_glib_none(ffi::osm_gps_map_image_get_point(self.as_ref().to_glib_none().0))
+            from_glib_none(osm_gps_map_sys::osm_gps_map_image_get_point(self.as_ref().to_glib_none().0))
         }
     }
 
     fn get_rotation(&self) -> f32 {
         unsafe {
-            ffi::osm_gps_map_image_get_rotation(self.as_ref().to_glib_none().0)
+            osm_gps_map_sys::osm_gps_map_image_get_rotation(self.as_ref().to_glib_none().0)
         }
     }
 
     fn get_zorder(&self) -> i32 {
         unsafe {
-            ffi::osm_gps_map_image_get_zorder(self.as_ref().to_glib_none().0)
+            osm_gps_map_sys::osm_gps_map_image_get_zorder(self.as_ref().to_glib_none().0)
         }
     }
 
     fn set_rotation(&self, rot: f32) {
         unsafe {
-            ffi::osm_gps_map_image_set_rotation(self.as_ref().to_glib_none().0, rot);
+            osm_gps_map_sys::osm_gps_map_image_set_rotation(self.as_ref().to_glib_none().0, rot);
         }
     }
 
     fn get_property_pixbuf(&self) -> Option<gdk_pixbuf::Pixbuf> {
         unsafe {
             let mut value = Value::from_type(<gdk_pixbuf::Pixbuf as StaticType>::static_type());
-            glib::gobject_ffi::g_object_get_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"pixbuf\0".as_ptr() as *const _, value.to_glib_none_mut().0);
+            gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"pixbuf\0".as_ptr() as *const _, value.to_glib_none_mut().0);
             value.get().expect("Return Value for property `pixbuf` getter")
         }
     }
 
     fn set_property_pixbuf(&self, pixbuf: Option<&gdk_pixbuf::Pixbuf>) {
         unsafe {
-            glib::gobject_ffi::g_object_set_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"pixbuf\0".as_ptr() as *const _, Value::from(pixbuf).to_glib_none().0);
+            gobject_sys::g_object_set_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"pixbuf\0".as_ptr() as *const _, Value::from(pixbuf).to_glib_none().0);
         }
     }
 
     fn set_property_point(&self, point: Option<&MapPoint>) {
         unsafe {
-            glib::gobject_ffi::g_object_set_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"point\0".as_ptr() as *const _, Value::from(point).to_glib_none().0);
+            gobject_sys::g_object_set_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"point\0".as_ptr() as *const _, Value::from(point).to_glib_none().0);
         }
     }
 
     fn get_property_x_align(&self) -> f32 {
         unsafe {
             let mut value = Value::from_type(<f32 as StaticType>::static_type());
-            glib::gobject_ffi::g_object_get_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"x-align\0".as_ptr() as *const _, value.to_glib_none_mut().0);
+            gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"x-align\0".as_ptr() as *const _, value.to_glib_none_mut().0);
             value.get().expect("Return Value for property `x-align` getter").unwrap()
         }
     }
 
     fn set_property_x_align(&self, x_align: f32) {
         unsafe {
-            glib::gobject_ffi::g_object_set_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"x-align\0".as_ptr() as *const _, Value::from(&x_align).to_glib_none().0);
+            gobject_sys::g_object_set_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"x-align\0".as_ptr() as *const _, Value::from(&x_align).to_glib_none().0);
         }
     }
 
     fn get_property_y_align(&self) -> f32 {
         unsafe {
             let mut value = Value::from_type(<f32 as StaticType>::static_type());
-            glib::gobject_ffi::g_object_get_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"y-align\0".as_ptr() as *const _, value.to_glib_none_mut().0);
+            gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"y-align\0".as_ptr() as *const _, value.to_glib_none_mut().0);
             value.get().expect("Return Value for property `y-align` getter").unwrap()
         }
     }
 
     fn set_property_y_align(&self, y_align: f32) {
         unsafe {
-            glib::gobject_ffi::g_object_set_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"y-align\0".as_ptr() as *const _, Value::from(&y_align).to_glib_none().0);
+            gobject_sys::g_object_set_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"y-align\0".as_ptr() as *const _, Value::from(&y_align).to_glib_none().0);
         }
     }
 
     fn get_property_z_order(&self) -> i32 {
         unsafe {
             let mut value = Value::from_type(<i32 as StaticType>::static_type());
-            glib::gobject_ffi::g_object_get_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"z-order\0".as_ptr() as *const _, value.to_glib_none_mut().0);
+            gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"z-order\0".as_ptr() as *const _, value.to_glib_none_mut().0);
             value.get().expect("Return Value for property `z-order` getter").unwrap()
         }
     }
 
     fn set_property_z_order(&self, z_order: i32) {
         unsafe {
-            glib::gobject_ffi::g_object_set_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"z-order\0".as_ptr() as *const _, Value::from(&z_order).to_glib_none().0);
+            gobject_sys::g_object_set_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"z-order\0".as_ptr() as *const _, Value::from(&z_order).to_glib_none().0);
         }
     }
 
     fn connect_property_pixbuf_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
-        unsafe extern "C" fn notify_pixbuf_trampoline<P, F: Fn(&P) + 'static>(this: *mut ffi::OsmGpsMapImage, _param_spec: glib::ffi::gpointer, f: glib::ffi::gpointer)
+        unsafe extern "C" fn notify_pixbuf_trampoline<P, F: Fn(&P) + 'static>(this: *mut osm_gps_map_sys::OsmGpsMapImage, _param_spec: glib_sys::gpointer, f: glib_sys::gpointer)
             where P: IsA<MapImage>
         {
             let f: &F = &*(f as *const F);
@@ -189,7 +270,7 @@ impl<O: IsA<MapImage>> MapImageExt for O {
     }
 
     fn connect_property_point_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
-        unsafe extern "C" fn notify_point_trampoline<P, F: Fn(&P) + 'static>(this: *mut ffi::OsmGpsMapImage, _param_spec: glib::ffi::gpointer, f: glib::ffi::gpointer)
+        unsafe extern "C" fn notify_point_trampoline<P, F: Fn(&P) + 'static>(this: *mut osm_gps_map_sys::OsmGpsMapImage, _param_spec: glib_sys::gpointer, f: glib_sys::gpointer)
             where P: IsA<MapImage>
         {
             let f: &F = &*(f as *const F);
@@ -203,7 +284,7 @@ impl<O: IsA<MapImage>> MapImageExt for O {
     }
 
     fn connect_property_rotation_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
-        unsafe extern "C" fn notify_rotation_trampoline<P, F: Fn(&P) + 'static>(this: *mut ffi::OsmGpsMapImage, _param_spec: glib::ffi::gpointer, f: glib::ffi::gpointer)
+        unsafe extern "C" fn notify_rotation_trampoline<P, F: Fn(&P) + 'static>(this: *mut osm_gps_map_sys::OsmGpsMapImage, _param_spec: glib_sys::gpointer, f: glib_sys::gpointer)
             where P: IsA<MapImage>
         {
             let f: &F = &*(f as *const F);
@@ -217,7 +298,7 @@ impl<O: IsA<MapImage>> MapImageExt for O {
     }
 
     fn connect_property_x_align_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
-        unsafe extern "C" fn notify_x_align_trampoline<P, F: Fn(&P) + 'static>(this: *mut ffi::OsmGpsMapImage, _param_spec: glib::ffi::gpointer, f: glib::ffi::gpointer)
+        unsafe extern "C" fn notify_x_align_trampoline<P, F: Fn(&P) + 'static>(this: *mut osm_gps_map_sys::OsmGpsMapImage, _param_spec: glib_sys::gpointer, f: glib_sys::gpointer)
             where P: IsA<MapImage>
         {
             let f: &F = &*(f as *const F);
@@ -231,7 +312,7 @@ impl<O: IsA<MapImage>> MapImageExt for O {
     }
 
     fn connect_property_y_align_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
-        unsafe extern "C" fn notify_y_align_trampoline<P, F: Fn(&P) + 'static>(this: *mut ffi::OsmGpsMapImage, _param_spec: glib::ffi::gpointer, f: glib::ffi::gpointer)
+        unsafe extern "C" fn notify_y_align_trampoline<P, F: Fn(&P) + 'static>(this: *mut osm_gps_map_sys::OsmGpsMapImage, _param_spec: glib_sys::gpointer, f: glib_sys::gpointer)
             where P: IsA<MapImage>
         {
             let f: &F = &*(f as *const F);
@@ -245,7 +326,7 @@ impl<O: IsA<MapImage>> MapImageExt for O {
     }
 
     fn connect_property_z_order_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
-        unsafe extern "C" fn notify_z_order_trampoline<P, F: Fn(&P) + 'static>(this: *mut ffi::OsmGpsMapImage, _param_spec: glib::ffi::gpointer, f: glib::ffi::gpointer)
+        unsafe extern "C" fn notify_z_order_trampoline<P, F: Fn(&P) + 'static>(this: *mut osm_gps_map_sys::OsmGpsMapImage, _param_spec: glib_sys::gpointer, f: glib_sys::gpointer)
             where P: IsA<MapImage>
         {
             let f: &F = &*(f as *const F);

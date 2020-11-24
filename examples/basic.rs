@@ -11,6 +11,7 @@ extern crate osmgpsmap;
 use gio::prelude::*;
 use gtk::prelude::*;
 use osmgpsmap::Map;
+use osmgpsmap::MapBuilder;
 
 use std::env::args;
 
@@ -41,11 +42,12 @@ fn build_ui(application: &gtk::Application) {
     window.set_default_size(350, 70);
 
     window.connect_delete_event(clone!(window => move |_, _| {
-        window.destroy();
+        unsafe {window.destroy()};
         Inhibit(false)
     }));
 
-    let map = Map::new();
+    let mapbuilder = MapBuilder::new();
+    let map = mapbuilder.build();
 
     window.add(&map);
 

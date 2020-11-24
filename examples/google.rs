@@ -53,7 +53,7 @@ fn build_ui(application: &gtk::Application) {
     window.set_default_size(350, 70);
 
     window.connect_delete_event(clone!(window => move |_, _| {
-        window.destroy();
+        unsafe {window.destroy()};
         Inhibit(false)
     }));
 
@@ -70,7 +70,7 @@ fn build_ui(application: &gtk::Application) {
 
     let map: Map = gtk::Widget::from_glib_none(g_object_newv(ffi::osm_gps_map_get_type(), properties.len() as u32, properties.as_mut_ptr()));
 
-    //window.add(&map);
+    window.add(&map);
 
     window.show_all();
 }

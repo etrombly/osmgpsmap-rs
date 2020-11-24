@@ -19,20 +19,8 @@ external_libraries = [
 ]
 
 generate = [
-    "OsmGpsMap.Map",
     "OsmGpsMap.MapKey_t",
-    "OsmGpsMap.MapOsd",
-    "OsmGpsMap.MapPolygon",
     "OsmGpsMap.MapSource_t",
-    "OsmGpsMap.MapTrack",
-]
-
-builders = [
-    "OsmGpsMap.MapBuilder",
-    "OsmGpsMap.MapTrackBuilder",
-    "OsmGpsMap.MapImageBuilder",
-    "OsmGpsMap.MapPolygonBuilder",
-    "OsmGpsMap.MapOsdBuilder"
 ]
 
 manual = [
@@ -48,6 +36,26 @@ manual = [
 ]
 
 [[object]]
+name = "OsmGpsMap.Map"
+status = "generate"
+generate_builder = true
+
+[[object]]
+name = "OsmGpsMap.MapTrack"
+status = "generate"
+generate_builder = true
+
+[[object]]
+name = "OsmGpsMap.MapOsd"
+status = "generate"
+generate_builder = true
+
+[[object]]
+name = "OsmGpsMap.MapPolygon"
+status = "generate"
+generate_builder = true
+
+[[object]]
 name = "OsmGpsMap.MapPoint"
 status = "generate"
 init_function_expression = "|_ptr| ()"
@@ -56,6 +64,7 @@ clear_function_expression = "|_ptr| ()"
 [[object]]
 name = "OsmGpsMap.MapImage"
 status = "generate"
+generate_builder = true
     [[object.function]]
     name = "draw"
         [[object.function.parameter]]
