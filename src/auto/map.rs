@@ -2,38 +2,30 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use gdk;
-use gdk_pixbuf;
+use crate::MapImage;
+use crate::MapKey_t;
+use crate::MapLayer;
+use crate::MapPoint;
+use crate::MapPolygon;
+use crate::MapSource_t;
+use crate::MapTrack;
 use glib::object::Cast;
 use glib::object::IsA;
 use glib::signal::connect_raw;
 use glib::signal::SignalHandlerId;
 use glib::translate::*;
-use glib::GString;
 use glib::StaticType;
-use glib::ToValue;
 use glib::Value;
-use glib_sys;
-use gobject_sys;
-use gtk;
-use osm_gps_map_sys;
 use std::boxed::Box as Box_;
 use std::fmt;
 use std::mem;
 use std::mem::transmute;
-use MapImage;
-use MapKey_t;
-use MapLayer;
-use MapPoint;
-use MapPolygon;
-use MapSource_t;
-use MapTrack;
 
-glib_wrapper! {
-    pub struct Map(Object<osm_gps_map_sys::OsmGpsMap, osm_gps_map_sys::OsmGpsMapClass, MapClass>) @extends gtk::DrawingArea, gtk::Widget, @implements gtk::Buildable;
+glib::glib_wrapper! {
+    pub struct Map(Object<ffi::OsmGpsMap, ffi::OsmGpsMapClass>) @extends gtk::DrawingArea, gtk::Widget, gobject::InitiallyUnowned, @implements atk::ImplementorIface, gtk::Buildable;
 
     match fn {
-        get_type => || osm_gps_map_sys::osm_gps_map_get_type(),
+        get_type => || ffi::osm_gps_map_get_type(),
     }
 }
 
@@ -41,63 +33,63 @@ impl Map {
     pub fn new() -> Map {
         assert_initialized_main_thread!();
         unsafe {
-            gtk::Widget::from_glib_none(osm_gps_map_sys::osm_gps_map_new()).unsafe_cast()
+            gtk::Widget::from_glib_none(ffi::osm_gps_map_new()).unsafe_cast()
         }
     }
 
-    pub fn get_default_cache_directory() -> Option<GString> {
+    pub fn get_default_cache_directory() -> Option<glib::GString> {
         assert_initialized_main_thread!();
         unsafe {
-            from_glib_full(osm_gps_map_sys::osm_gps_map_get_default_cache_directory())
+            from_glib_full(ffi::osm_gps_map_get_default_cache_directory())
         }
     }
 
-    pub fn source_get_copyright(source: MapSource_t) -> Option<GString> {
+    pub fn source_get_copyright(source: MapSource_t) -> Option<glib::GString> {
         assert_initialized_main_thread!();
         unsafe {
-            from_glib_none(osm_gps_map_sys::osm_gps_map_source_get_copyright(source.to_glib()))
+            from_glib_none(ffi::osm_gps_map_source_get_copyright(source.to_glib()))
         }
     }
 
-    pub fn source_get_friendly_name(source: MapSource_t) -> Option<GString> {
+    pub fn source_get_friendly_name(source: MapSource_t) -> Option<glib::GString> {
         assert_initialized_main_thread!();
         unsafe {
-            from_glib_none(osm_gps_map_sys::osm_gps_map_source_get_friendly_name(source.to_glib()))
+            from_glib_none(ffi::osm_gps_map_source_get_friendly_name(source.to_glib()))
         }
     }
 
-    pub fn source_get_image_format(source: MapSource_t) -> Option<GString> {
+    pub fn source_get_image_format(source: MapSource_t) -> Option<glib::GString> {
         assert_initialized_main_thread!();
         unsafe {
-            from_glib_none(osm_gps_map_sys::osm_gps_map_source_get_image_format(source.to_glib()))
+            from_glib_none(ffi::osm_gps_map_source_get_image_format(source.to_glib()))
         }
     }
 
     pub fn source_get_max_zoom(source: MapSource_t) -> i32 {
         assert_initialized_main_thread!();
         unsafe {
-            osm_gps_map_sys::osm_gps_map_source_get_max_zoom(source.to_glib())
+            ffi::osm_gps_map_source_get_max_zoom(source.to_glib())
         }
     }
 
     pub fn source_get_min_zoom(source: MapSource_t) -> i32 {
         assert_initialized_main_thread!();
         unsafe {
-            osm_gps_map_sys::osm_gps_map_source_get_min_zoom(source.to_glib())
+            ffi::osm_gps_map_source_get_min_zoom(source.to_glib())
         }
     }
 
-    pub fn source_get_repo_uri(source: MapSource_t) -> Option<GString> {
+    pub fn source_get_repo_uri(source: MapSource_t) -> Option<glib::GString> {
         assert_initialized_main_thread!();
         unsafe {
-            from_glib_none(osm_gps_map_sys::osm_gps_map_source_get_repo_uri(source.to_glib()))
+            from_glib_none(ffi::osm_gps_map_source_get_repo_uri(source.to_glib()))
         }
     }
 
     pub fn source_is_valid(source: MapSource_t) -> bool {
         assert_initialized_main_thread!();
         unsafe {
-            from_glib(osm_gps_map_sys::osm_gps_map_source_is_valid(source.to_glib()))
+            from_glib(ffi::osm_gps_map_source_is_valid(source.to_glib()))
         }
     }
 }
@@ -105,607 +97,6 @@ impl Map {
 impl Default for Map {
     fn default() -> Self {
         Self::new()
-    }
-}
-
-#[derive(Clone, Default)]
-pub struct MapBuilder {
-    auto_center: Option<bool>,
-    auto_center_threshold: Option<f32>,
-    auto_download: Option<bool>,
-    drag_limit: Option<i32>,
-    gps_track_highlight_radius: Option<i32>,
-    gps_track_point_radius: Option<i32>,
-    gps_track_width: Option<f32>,
-    image_format: Option<String>,
-    map_source: Option<i32>,
-    map_x: Option<i32>,
-    map_y: Option<i32>,
-    max_zoom: Option<i32>,
-    min_zoom: Option<i32>,
-    proxy_uri: Option<String>,
-    record_trip_history: Option<bool>,
-    repo_uri: Option<String>,
-    show_gps_point: Option<bool>,
-    show_trip_history: Option<bool>,
-    tile_cache: Option<String>,
-    tile_cache_base: Option<String>,
-    tile_zoom_offset: Option<i32>,
-    user_agent: Option<String>,
-    zoom: Option<i32>,
-    app_paintable: Option<bool>,
-    can_default: Option<bool>,
-    can_focus: Option<bool>,
-    #[cfg(any(feature = "v2_18", feature = "dox"))]
-    double_buffered: Option<bool>,
-    //events: /*Unknown type*/,
-    #[cfg(any(feature = "v3_0", feature = "dox"))]
-    expand: Option<bool>,
-    #[cfg(any(feature = "v3_20", feature = "dox"))]
-    focus_on_click: Option<bool>,
-    //halign: /*Unknown type*/,
-    has_default: Option<bool>,
-    has_focus: Option<bool>,
-    #[cfg(any(feature = "v2_12", feature = "dox"))]
-    has_tooltip: Option<bool>,
-    height_request: Option<i32>,
-    #[cfg(any(feature = "v3_0", feature = "dox"))]
-    hexpand: Option<bool>,
-    #[cfg(any(feature = "v3_0", feature = "dox"))]
-    hexpand_set: Option<bool>,
-    is_focus: Option<bool>,
-    #[cfg(any(feature = "v3_0", feature = "dox"))]
-    margin: Option<i32>,
-    #[cfg(any(feature = "v3_0", feature = "dox"))]
-    margin_bottom: Option<i32>,
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
-    margin_end: Option<i32>,
-    #[cfg(any(feature = "v3_0", feature = "dox"))]
-    margin_left: Option<i32>,
-    #[cfg(any(feature = "v3_0", feature = "dox"))]
-    margin_right: Option<i32>,
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
-    margin_start: Option<i32>,
-    #[cfg(any(feature = "v3_0", feature = "dox"))]
-    margin_top: Option<i32>,
-    name: Option<String>,
-    no_show_all: Option<bool>,
-    #[cfg(any(feature = "v3_8", feature = "dox"))]
-    opacity: Option<f64>,
-    //parent: /*Unknown type*/,
-    receives_default: Option<bool>,
-    sensitive: Option<bool>,
-    //style: /*Unknown type*/,
-    #[cfg(any(feature = "v2_12", feature = "dox"))]
-    tooltip_markup: Option<String>,
-    #[cfg(any(feature = "v2_12", feature = "dox"))]
-    tooltip_text: Option<String>,
-    //valign: /*Unknown type*/,
-    #[cfg(any(feature = "v3_0", feature = "dox"))]
-    vexpand: Option<bool>,
-    #[cfg(any(feature = "v3_0", feature = "dox"))]
-    vexpand_set: Option<bool>,
-    visible: Option<bool>,
-    width_request: Option<i32>,
-}
-
-impl MapBuilder {
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-
-    pub fn build(self) -> Map {
-        let mut properties: Vec<(&str, &dyn ToValue)> = vec![];
-        if let Some(ref auto_center) = self.auto_center {
-            properties.push(("auto-center", auto_center));
-        }
-        if let Some(ref auto_center_threshold) = self.auto_center_threshold {
-            properties.push(("auto-center-threshold", auto_center_threshold));
-        }
-        if let Some(ref auto_download) = self.auto_download {
-            properties.push(("auto-download", auto_download));
-        }
-        if let Some(ref drag_limit) = self.drag_limit {
-            properties.push(("drag-limit", drag_limit));
-        }
-        if let Some(ref gps_track_highlight_radius) = self.gps_track_highlight_radius {
-            properties.push(("gps-track-highlight-radius", gps_track_highlight_radius));
-        }
-        if let Some(ref gps_track_point_radius) = self.gps_track_point_radius {
-            properties.push(("gps-track-point-radius", gps_track_point_radius));
-        }
-        if let Some(ref gps_track_width) = self.gps_track_width {
-            properties.push(("gps-track-width", gps_track_width));
-        }
-        if let Some(ref image_format) = self.image_format {
-            properties.push(("image-format", image_format));
-        }
-        if let Some(ref map_source) = self.map_source {
-            properties.push(("map-source", map_source));
-        }
-        if let Some(ref map_x) = self.map_x {
-            properties.push(("map-x", map_x));
-        }
-        if let Some(ref map_y) = self.map_y {
-            properties.push(("map-y", map_y));
-        }
-        if let Some(ref max_zoom) = self.max_zoom {
-            properties.push(("max-zoom", max_zoom));
-        }
-        if let Some(ref min_zoom) = self.min_zoom {
-            properties.push(("min-zoom", min_zoom));
-        }
-        if let Some(ref proxy_uri) = self.proxy_uri {
-            properties.push(("proxy-uri", proxy_uri));
-        }
-        if let Some(ref record_trip_history) = self.record_trip_history {
-            properties.push(("record-trip-history", record_trip_history));
-        }
-        if let Some(ref repo_uri) = self.repo_uri {
-            properties.push(("repo-uri", repo_uri));
-        }
-        if let Some(ref show_gps_point) = self.show_gps_point {
-            properties.push(("show-gps-point", show_gps_point));
-        }
-        if let Some(ref show_trip_history) = self.show_trip_history {
-            properties.push(("show-trip-history", show_trip_history));
-        }
-        if let Some(ref tile_cache) = self.tile_cache {
-            properties.push(("tile-cache", tile_cache));
-        }
-        if let Some(ref tile_cache_base) = self.tile_cache_base {
-            properties.push(("tile-cache-base", tile_cache_base));
-        }
-        if let Some(ref tile_zoom_offset) = self.tile_zoom_offset {
-            properties.push(("tile-zoom-offset", tile_zoom_offset));
-        }
-        if let Some(ref user_agent) = self.user_agent {
-            properties.push(("user-agent", user_agent));
-        }
-        if let Some(ref zoom) = self.zoom {
-            properties.push(("zoom", zoom));
-        }
-        if let Some(ref app_paintable) = self.app_paintable {
-            properties.push(("app-paintable", app_paintable));
-        }
-        if let Some(ref can_default) = self.can_default {
-            properties.push(("can-default", can_default));
-        }
-        if let Some(ref can_focus) = self.can_focus {
-            properties.push(("can-focus", can_focus));
-        }
-        #[cfg(any(feature = "v2_18", feature = "dox"))]
-        {
-            if let Some(ref double_buffered) = self.double_buffered {
-                properties.push(("double-buffered", double_buffered));
-            }
-        }
-        #[cfg(any(feature = "v3_0", feature = "dox"))]
-        {
-            if let Some(ref expand) = self.expand {
-                properties.push(("expand", expand));
-            }
-        }
-        #[cfg(any(feature = "v3_20", feature = "dox"))]
-        {
-            if let Some(ref focus_on_click) = self.focus_on_click {
-                properties.push(("focus-on-click", focus_on_click));
-            }
-        }
-        if let Some(ref has_default) = self.has_default {
-            properties.push(("has-default", has_default));
-        }
-        if let Some(ref has_focus) = self.has_focus {
-            properties.push(("has-focus", has_focus));
-        }
-        #[cfg(any(feature = "v2_12", feature = "dox"))]
-        {
-            if let Some(ref has_tooltip) = self.has_tooltip {
-                properties.push(("has-tooltip", has_tooltip));
-            }
-        }
-        if let Some(ref height_request) = self.height_request {
-            properties.push(("height-request", height_request));
-        }
-        #[cfg(any(feature = "v3_0", feature = "dox"))]
-        {
-            if let Some(ref hexpand) = self.hexpand {
-                properties.push(("hexpand", hexpand));
-            }
-        }
-        #[cfg(any(feature = "v3_0", feature = "dox"))]
-        {
-            if let Some(ref hexpand_set) = self.hexpand_set {
-                properties.push(("hexpand-set", hexpand_set));
-            }
-        }
-        if let Some(ref is_focus) = self.is_focus {
-            properties.push(("is-focus", is_focus));
-        }
-        #[cfg(any(feature = "v3_0", feature = "dox"))]
-        {
-            if let Some(ref margin) = self.margin {
-                properties.push(("margin", margin));
-            }
-        }
-        #[cfg(any(feature = "v3_0", feature = "dox"))]
-        {
-            if let Some(ref margin_bottom) = self.margin_bottom {
-                properties.push(("margin-bottom", margin_bottom));
-            }
-        }
-        #[cfg(any(feature = "v3_12", feature = "dox"))]
-        {
-            if let Some(ref margin_end) = self.margin_end {
-                properties.push(("margin-end", margin_end));
-            }
-        }
-        #[cfg(any(feature = "v3_0", feature = "dox"))]
-        {
-            if let Some(ref margin_left) = self.margin_left {
-                properties.push(("margin-left", margin_left));
-            }
-        }
-        #[cfg(any(feature = "v3_0", feature = "dox"))]
-        {
-            if let Some(ref margin_right) = self.margin_right {
-                properties.push(("margin-right", margin_right));
-            }
-        }
-        #[cfg(any(feature = "v3_12", feature = "dox"))]
-        {
-            if let Some(ref margin_start) = self.margin_start {
-                properties.push(("margin-start", margin_start));
-            }
-        }
-        #[cfg(any(feature = "v3_0", feature = "dox"))]
-        {
-            if let Some(ref margin_top) = self.margin_top {
-                properties.push(("margin-top", margin_top));
-            }
-        }
-        if let Some(ref name) = self.name {
-            properties.push(("name", name));
-        }
-        if let Some(ref no_show_all) = self.no_show_all {
-            properties.push(("no-show-all", no_show_all));
-        }
-        #[cfg(any(feature = "v3_8", feature = "dox"))]
-        {
-            if let Some(ref opacity) = self.opacity {
-                properties.push(("opacity", opacity));
-            }
-        }
-        if let Some(ref receives_default) = self.receives_default {
-            properties.push(("receives-default", receives_default));
-        }
-        if let Some(ref sensitive) = self.sensitive {
-            properties.push(("sensitive", sensitive));
-        }
-        #[cfg(any(feature = "v2_12", feature = "dox"))]
-        {
-            if let Some(ref tooltip_markup) = self.tooltip_markup {
-                properties.push(("tooltip-markup", tooltip_markup));
-            }
-        }
-        #[cfg(any(feature = "v2_12", feature = "dox"))]
-        {
-            if let Some(ref tooltip_text) = self.tooltip_text {
-                properties.push(("tooltip-text", tooltip_text));
-            }
-        }
-        #[cfg(any(feature = "v3_0", feature = "dox"))]
-        {
-            if let Some(ref vexpand) = self.vexpand {
-                properties.push(("vexpand", vexpand));
-            }
-        }
-        #[cfg(any(feature = "v3_0", feature = "dox"))]
-        {
-            if let Some(ref vexpand_set) = self.vexpand_set {
-                properties.push(("vexpand-set", vexpand_set));
-            }
-        }
-        if let Some(ref visible) = self.visible {
-            properties.push(("visible", visible));
-        }
-        if let Some(ref width_request) = self.width_request {
-            properties.push(("width-request", width_request));
-        }
-        let ret = glib::Object::new(Map::static_type(), &properties)
-            .expect("object new")
-            .downcast::<Map>()
-            .expect("downcast");
-    ret
-    }
-
-    pub fn auto_center(mut self, auto_center: bool) -> Self {
-        self.auto_center = Some(auto_center);
-        self
-    }
-
-    pub fn auto_center_threshold(mut self, auto_center_threshold: f32) -> Self {
-        self.auto_center_threshold = Some(auto_center_threshold);
-        self
-    }
-
-    pub fn auto_download(mut self, auto_download: bool) -> Self {
-        self.auto_download = Some(auto_download);
-        self
-    }
-
-    pub fn drag_limit(mut self, drag_limit: i32) -> Self {
-        self.drag_limit = Some(drag_limit);
-        self
-    }
-
-    pub fn gps_track_highlight_radius(mut self, gps_track_highlight_radius: i32) -> Self {
-        self.gps_track_highlight_radius = Some(gps_track_highlight_radius);
-        self
-    }
-
-    pub fn gps_track_point_radius(mut self, gps_track_point_radius: i32) -> Self {
-        self.gps_track_point_radius = Some(gps_track_point_radius);
-        self
-    }
-
-    pub fn gps_track_width(mut self, gps_track_width: f32) -> Self {
-        self.gps_track_width = Some(gps_track_width);
-        self
-    }
-
-    pub fn image_format(mut self, image_format: &str) -> Self {
-        self.image_format = Some(image_format.to_string());
-        self
-    }
-
-    pub fn map_source(mut self, map_source: i32) -> Self {
-        self.map_source = Some(map_source);
-        self
-    }
-
-    pub fn map_x(mut self, map_x: i32) -> Self {
-        self.map_x = Some(map_x);
-        self
-    }
-
-    pub fn map_y(mut self, map_y: i32) -> Self {
-        self.map_y = Some(map_y);
-        self
-    }
-
-    pub fn max_zoom(mut self, max_zoom: i32) -> Self {
-        self.max_zoom = Some(max_zoom);
-        self
-    }
-
-    pub fn min_zoom(mut self, min_zoom: i32) -> Self {
-        self.min_zoom = Some(min_zoom);
-        self
-    }
-
-    pub fn proxy_uri(mut self, proxy_uri: &str) -> Self {
-        self.proxy_uri = Some(proxy_uri.to_string());
-        self
-    }
-
-    pub fn record_trip_history(mut self, record_trip_history: bool) -> Self {
-        self.record_trip_history = Some(record_trip_history);
-        self
-    }
-
-    pub fn repo_uri(mut self, repo_uri: &str) -> Self {
-        self.repo_uri = Some(repo_uri.to_string());
-        self
-    }
-
-    pub fn show_gps_point(mut self, show_gps_point: bool) -> Self {
-        self.show_gps_point = Some(show_gps_point);
-        self
-    }
-
-    pub fn show_trip_history(mut self, show_trip_history: bool) -> Self {
-        self.show_trip_history = Some(show_trip_history);
-        self
-    }
-
-    pub fn tile_cache(mut self, tile_cache: &str) -> Self {
-        self.tile_cache = Some(tile_cache.to_string());
-        self
-    }
-
-    pub fn tile_cache_base(mut self, tile_cache_base: &str) -> Self {
-        self.tile_cache_base = Some(tile_cache_base.to_string());
-        self
-    }
-
-    pub fn tile_zoom_offset(mut self, tile_zoom_offset: i32) -> Self {
-        self.tile_zoom_offset = Some(tile_zoom_offset);
-        self
-    }
-
-    pub fn user_agent(mut self, user_agent: &str) -> Self {
-        self.user_agent = Some(user_agent.to_string());
-        self
-    }
-
-    pub fn zoom(mut self, zoom: i32) -> Self {
-        self.zoom = Some(zoom);
-        self
-    }
-
-    pub fn app_paintable(mut self, app_paintable: bool) -> Self {
-        self.app_paintable = Some(app_paintable);
-        self
-    }
-
-    pub fn can_default(mut self, can_default: bool) -> Self {
-        self.can_default = Some(can_default);
-        self
-    }
-
-    pub fn can_focus(mut self, can_focus: bool) -> Self {
-        self.can_focus = Some(can_focus);
-        self
-    }
-
-    #[cfg(any(feature = "v2_18", feature = "dox"))]
-    pub fn double_buffered(mut self, double_buffered: bool) -> Self {
-        self.double_buffered = Some(double_buffered);
-        self
-    }
-
-    #[cfg(any(feature = "v3_0", feature = "dox"))]
-    pub fn expand(mut self, expand: bool) -> Self {
-        self.expand = Some(expand);
-        self
-    }
-
-    #[cfg(any(feature = "v3_20", feature = "dox"))]
-    pub fn focus_on_click(mut self, focus_on_click: bool) -> Self {
-        self.focus_on_click = Some(focus_on_click);
-        self
-    }
-
-    pub fn has_default(mut self, has_default: bool) -> Self {
-        self.has_default = Some(has_default);
-        self
-    }
-
-    pub fn has_focus(mut self, has_focus: bool) -> Self {
-        self.has_focus = Some(has_focus);
-        self
-    }
-
-    #[cfg(any(feature = "v2_12", feature = "dox"))]
-    pub fn has_tooltip(mut self, has_tooltip: bool) -> Self {
-        self.has_tooltip = Some(has_tooltip);
-        self
-    }
-
-    pub fn height_request(mut self, height_request: i32) -> Self {
-        self.height_request = Some(height_request);
-        self
-    }
-
-    #[cfg(any(feature = "v3_0", feature = "dox"))]
-    pub fn hexpand(mut self, hexpand: bool) -> Self {
-        self.hexpand = Some(hexpand);
-        self
-    }
-
-    #[cfg(any(feature = "v3_0", feature = "dox"))]
-    pub fn hexpand_set(mut self, hexpand_set: bool) -> Self {
-        self.hexpand_set = Some(hexpand_set);
-        self
-    }
-
-    pub fn is_focus(mut self, is_focus: bool) -> Self {
-        self.is_focus = Some(is_focus);
-        self
-    }
-
-    #[cfg(any(feature = "v3_0", feature = "dox"))]
-    pub fn margin(mut self, margin: i32) -> Self {
-        self.margin = Some(margin);
-        self
-    }
-
-    #[cfg(any(feature = "v3_0", feature = "dox"))]
-    pub fn margin_bottom(mut self, margin_bottom: i32) -> Self {
-        self.margin_bottom = Some(margin_bottom);
-        self
-    }
-
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
-    pub fn margin_end(mut self, margin_end: i32) -> Self {
-        self.margin_end = Some(margin_end);
-        self
-    }
-
-    #[cfg(any(feature = "v3_0", feature = "dox"))]
-    pub fn margin_left(mut self, margin_left: i32) -> Self {
-        self.margin_left = Some(margin_left);
-        self
-    }
-
-    #[cfg(any(feature = "v3_0", feature = "dox"))]
-    pub fn margin_right(mut self, margin_right: i32) -> Self {
-        self.margin_right = Some(margin_right);
-        self
-    }
-
-    #[cfg(any(feature = "v3_12", feature = "dox"))]
-    pub fn margin_start(mut self, margin_start: i32) -> Self {
-        self.margin_start = Some(margin_start);
-        self
-    }
-
-    #[cfg(any(feature = "v3_0", feature = "dox"))]
-    pub fn margin_top(mut self, margin_top: i32) -> Self {
-        self.margin_top = Some(margin_top);
-        self
-    }
-
-    pub fn name(mut self, name: &str) -> Self {
-        self.name = Some(name.to_string());
-        self
-    }
-
-    pub fn no_show_all(mut self, no_show_all: bool) -> Self {
-        self.no_show_all = Some(no_show_all);
-        self
-    }
-
-    #[cfg(any(feature = "v3_8", feature = "dox"))]
-    pub fn opacity(mut self, opacity: f64) -> Self {
-        self.opacity = Some(opacity);
-        self
-    }
-
-    pub fn receives_default(mut self, receives_default: bool) -> Self {
-        self.receives_default = Some(receives_default);
-        self
-    }
-
-    pub fn sensitive(mut self, sensitive: bool) -> Self {
-        self.sensitive = Some(sensitive);
-        self
-    }
-
-    #[cfg(any(feature = "v2_12", feature = "dox"))]
-    pub fn tooltip_markup(mut self, tooltip_markup: &str) -> Self {
-        self.tooltip_markup = Some(tooltip_markup.to_string());
-        self
-    }
-
-    #[cfg(any(feature = "v2_12", feature = "dox"))]
-    pub fn tooltip_text(mut self, tooltip_text: &str) -> Self {
-        self.tooltip_text = Some(tooltip_text.to_string());
-        self
-    }
-
-    #[cfg(any(feature = "v3_0", feature = "dox"))]
-    pub fn vexpand(mut self, vexpand: bool) -> Self {
-        self.vexpand = Some(vexpand);
-        self
-    }
-
-    #[cfg(any(feature = "v3_0", feature = "dox"))]
-    pub fn vexpand_set(mut self, vexpand_set: bool) -> Self {
-        self.vexpand_set = Some(vexpand_set);
-        self
-    }
-
-    pub fn visible(mut self, visible: bool) -> Self {
-        self.visible = Some(visible);
-        self
-    }
-
-    pub fn width_request(mut self, width_request: i32) -> Self {
-        self.width_request = Some(width_request);
-        self
     }
 }
 
@@ -722,7 +113,7 @@ pub trait MapExt: 'static {
 
     fn get_bbox(&self) -> (MapPoint, MapPoint);
 
-    fn get_event_location(&self, event: &mut gdk::EventButton) -> Option<MapPoint>;
+    //fn get_event_location(&self, event: /*Ignored*/&mut gdk::EventButton) -> Option<MapPoint>;
 
     fn get_scale(&self) -> f32;
 
@@ -810,7 +201,7 @@ pub trait MapExt: 'static {
 
     fn set_property_gps_track_width(&self, gps_track_width: f32);
 
-    fn get_property_image_format(&self) -> Option<GString>;
+    fn get_property_image_format(&self) -> Option<glib::GString>;
 
     fn get_property_latitude(&self) -> f32;
 
@@ -828,13 +219,13 @@ pub trait MapExt: 'static {
 
     fn get_property_min_zoom(&self) -> i32;
 
-    fn get_property_proxy_uri(&self) -> Option<GString>;
+    fn get_property_proxy_uri(&self) -> Option<glib::GString>;
 
     fn get_property_record_trip_history(&self) -> bool;
 
     fn set_property_record_trip_history(&self, record_trip_history: bool);
 
-    fn get_property_repo_uri(&self) -> Option<GString>;
+    fn get_property_repo_uri(&self) -> Option<glib::GString>;
 
     fn get_property_show_gps_point(&self) -> bool;
 
@@ -844,17 +235,17 @@ pub trait MapExt: 'static {
 
     fn set_property_show_trip_history(&self, show_trip_history: bool);
 
-    fn get_property_tile_cache(&self) -> Option<GString>;
+    fn get_property_tile_cache(&self) -> Option<glib::GString>;
 
     fn set_property_tile_cache(&self, tile_cache: Option<&str>);
 
-    fn get_property_tile_cache_base(&self) -> Option<GString>;
+    fn get_property_tile_cache_base(&self) -> Option<glib::GString>;
 
     fn get_property_tile_zoom_offset(&self) -> i32;
 
     fn get_property_tiles_queued(&self) -> i32;
 
-    fn get_property_user_agent(&self) -> Option<GString>;
+    fn get_property_user_agent(&self) -> Option<glib::GString>;
 
     fn set_property_user_agent(&self, user_agent: Option<&str>);
 
@@ -898,7 +289,7 @@ impl<O: IsA<Map>> MapExt for O {
         unsafe {
             let mut pixel_x = mem::MaybeUninit::uninit();
             let mut pixel_y = mem::MaybeUninit::uninit();
-            osm_gps_map_sys::osm_gps_map_convert_geographic_to_screen(self.as_ref().to_glib_none().0, pt.to_glib_none_mut().0, pixel_x.as_mut_ptr(), pixel_y.as_mut_ptr());
+            ffi::osm_gps_map_convert_geographic_to_screen(self.as_ref().to_glib_none().0, pt.to_glib_none_mut().0, pixel_x.as_mut_ptr(), pixel_y.as_mut_ptr());
             let pixel_x = pixel_x.assume_init();
             let pixel_y = pixel_y.assume_init();
             (pixel_x, pixel_y)
@@ -908,20 +299,20 @@ impl<O: IsA<Map>> MapExt for O {
     fn convert_screen_to_geographic(&self, pixel_x: i32, pixel_y: i32) -> MapPoint {
         unsafe {
             let mut pt = MapPoint::uninitialized();
-            osm_gps_map_sys::osm_gps_map_convert_screen_to_geographic(self.as_ref().to_glib_none().0, pixel_x, pixel_y, pt.to_glib_none_mut().0);
+            ffi::osm_gps_map_convert_screen_to_geographic(self.as_ref().to_glib_none().0, pixel_x, pixel_y, pt.to_glib_none_mut().0);
             pt
         }
     }
 
     fn download_cancel_all(&self) {
         unsafe {
-            osm_gps_map_sys::osm_gps_map_download_cancel_all(self.as_ref().to_glib_none().0);
+            ffi::osm_gps_map_download_cancel_all(self.as_ref().to_glib_none().0);
         }
     }
 
     fn download_maps(&self, pt1: &mut MapPoint, pt2: &mut MapPoint, zoom_start: i32, zoom_end: i32) {
         unsafe {
-            osm_gps_map_sys::osm_gps_map_download_maps(self.as_ref().to_glib_none().0, pt1.to_glib_none_mut().0, pt2.to_glib_none_mut().0, zoom_start, zoom_end);
+            ffi::osm_gps_map_download_maps(self.as_ref().to_glib_none().0, pt1.to_glib_none_mut().0, pt2.to_glib_none_mut().0, zoom_start, zoom_end);
         }
     }
 
@@ -929,243 +320,241 @@ impl<O: IsA<Map>> MapExt for O {
         unsafe {
             let mut pt1 = MapPoint::uninitialized();
             let mut pt2 = MapPoint::uninitialized();
-            osm_gps_map_sys::osm_gps_map_get_bbox(self.as_ref().to_glib_none().0, pt1.to_glib_none_mut().0, pt2.to_glib_none_mut().0);
+            ffi::osm_gps_map_get_bbox(self.as_ref().to_glib_none().0, pt1.to_glib_none_mut().0, pt2.to_glib_none_mut().0);
             (pt1, pt2)
         }
     }
 
-    fn get_event_location(&self, event: &mut gdk::EventButton) -> Option<MapPoint> {
-        unsafe {
-            from_glib_full(osm_gps_map_sys::osm_gps_map_get_event_location(self.as_ref().to_glib_none().0, event.to_glib_none_mut().0))
-        }
-    }
+    //fn get_event_location(&self, event: /*Ignored*/&mut gdk::EventButton) -> Option<MapPoint> {
+    //    unsafe { TODO: call ffi:osm_gps_map_get_event_location() }
+    //}
 
     fn get_scale(&self) -> f32 {
         unsafe {
-            osm_gps_map_sys::osm_gps_map_get_scale(self.as_ref().to_glib_none().0)
+            ffi::osm_gps_map_get_scale(self.as_ref().to_glib_none().0)
         }
     }
 
     fn gps_add(&self, latitude: f32, longitude: f32, heading: f32) {
         unsafe {
-            osm_gps_map_sys::osm_gps_map_gps_add(self.as_ref().to_glib_none().0, latitude, longitude, heading);
+            ffi::osm_gps_map_gps_add(self.as_ref().to_glib_none().0, latitude, longitude, heading);
         }
     }
 
     fn gps_clear(&self) {
         unsafe {
-            osm_gps_map_sys::osm_gps_map_gps_clear(self.as_ref().to_glib_none().0);
+            ffi::osm_gps_map_gps_clear(self.as_ref().to_glib_none().0);
         }
     }
 
     fn gps_get_track(&self) -> Option<MapTrack> {
         unsafe {
-            from_glib_none(osm_gps_map_sys::osm_gps_map_gps_get_track(self.as_ref().to_glib_none().0))
+            from_glib_none(ffi::osm_gps_map_gps_get_track(self.as_ref().to_glib_none().0))
         }
     }
 
     fn image_add(&self, latitude: f32, longitude: f32, image: &gdk_pixbuf::Pixbuf) -> Option<MapImage> {
         unsafe {
-            from_glib_full(osm_gps_map_sys::osm_gps_map_image_add(self.as_ref().to_glib_none().0, latitude, longitude, image.to_glib_none().0))
+            from_glib_full(ffi::osm_gps_map_image_add(self.as_ref().to_glib_none().0, latitude, longitude, image.to_glib_none().0))
         }
     }
 
     fn image_add_with_alignment(&self, latitude: f32, longitude: f32, image: &gdk_pixbuf::Pixbuf, xalign: f32, yalign: f32) -> Option<MapImage> {
         unsafe {
-            from_glib_full(osm_gps_map_sys::osm_gps_map_image_add_with_alignment(self.as_ref().to_glib_none().0, latitude, longitude, image.to_glib_none().0, xalign, yalign))
+            from_glib_full(ffi::osm_gps_map_image_add_with_alignment(self.as_ref().to_glib_none().0, latitude, longitude, image.to_glib_none().0, xalign, yalign))
         }
     }
 
     fn image_add_with_alignment_z(&self, latitude: f32, longitude: f32, image: &gdk_pixbuf::Pixbuf, xalign: f32, yalign: f32, zorder: i32) -> Option<MapImage> {
         unsafe {
-            from_glib_full(osm_gps_map_sys::osm_gps_map_image_add_with_alignment_z(self.as_ref().to_glib_none().0, latitude, longitude, image.to_glib_none().0, xalign, yalign, zorder))
+            from_glib_full(ffi::osm_gps_map_image_add_with_alignment_z(self.as_ref().to_glib_none().0, latitude, longitude, image.to_glib_none().0, xalign, yalign, zorder))
         }
     }
 
     fn image_add_z(&self, latitude: f32, longitude: f32, image: &gdk_pixbuf::Pixbuf, zorder: i32) -> Option<MapImage> {
         unsafe {
-            from_glib_full(osm_gps_map_sys::osm_gps_map_image_add_z(self.as_ref().to_glib_none().0, latitude, longitude, image.to_glib_none().0, zorder))
+            from_glib_full(ffi::osm_gps_map_image_add_z(self.as_ref().to_glib_none().0, latitude, longitude, image.to_glib_none().0, zorder))
         }
     }
 
     fn image_remove<P: IsA<MapImage>>(&self, image: &P) -> bool {
         unsafe {
-            from_glib(osm_gps_map_sys::osm_gps_map_image_remove(self.as_ref().to_glib_none().0, image.as_ref().to_glib_none().0))
+            from_glib(ffi::osm_gps_map_image_remove(self.as_ref().to_glib_none().0, image.as_ref().to_glib_none().0))
         }
     }
 
     fn image_remove_all(&self) {
         unsafe {
-            osm_gps_map_sys::osm_gps_map_image_remove_all(self.as_ref().to_glib_none().0);
+            ffi::osm_gps_map_image_remove_all(self.as_ref().to_glib_none().0);
         }
     }
 
     fn layer_add<P: IsA<MapLayer>>(&self, layer: &P) {
         unsafe {
-            osm_gps_map_sys::osm_gps_map_layer_add(self.as_ref().to_glib_none().0, layer.as_ref().to_glib_none().0);
+            ffi::osm_gps_map_layer_add(self.as_ref().to_glib_none().0, layer.as_ref().to_glib_none().0);
         }
     }
 
     fn layer_remove<P: IsA<MapLayer>>(&self, layer: &P) -> bool {
         unsafe {
-            from_glib(osm_gps_map_sys::osm_gps_map_layer_remove(self.as_ref().to_glib_none().0, layer.as_ref().to_glib_none().0))
+            from_glib(ffi::osm_gps_map_layer_remove(self.as_ref().to_glib_none().0, layer.as_ref().to_glib_none().0))
         }
     }
 
     fn layer_remove_all(&self) {
         unsafe {
-            osm_gps_map_sys::osm_gps_map_layer_remove_all(self.as_ref().to_glib_none().0);
+            ffi::osm_gps_map_layer_remove_all(self.as_ref().to_glib_none().0);
         }
     }
 
     fn map_redraw(&self) -> bool {
         unsafe {
-            from_glib(osm_gps_map_sys::osm_gps_map_map_redraw(self.as_ref().to_glib_none().0))
+            from_glib(ffi::osm_gps_map_map_redraw(self.as_ref().to_glib_none().0))
         }
     }
 
     fn map_redraw_idle(&self) {
         unsafe {
-            osm_gps_map_sys::osm_gps_map_map_redraw_idle(self.as_ref().to_glib_none().0);
+            ffi::osm_gps_map_map_redraw_idle(self.as_ref().to_glib_none().0);
         }
     }
 
     fn polygon_add<P: IsA<MapPolygon>>(&self, poly: &P) {
         unsafe {
-            osm_gps_map_sys::osm_gps_map_polygon_add(self.as_ref().to_glib_none().0, poly.as_ref().to_glib_none().0);
+            ffi::osm_gps_map_polygon_add(self.as_ref().to_glib_none().0, poly.as_ref().to_glib_none().0);
         }
     }
 
     fn polygon_remove<P: IsA<MapPolygon>>(&self, poly: &P) -> bool {
         unsafe {
-            from_glib(osm_gps_map_sys::osm_gps_map_polygon_remove(self.as_ref().to_glib_none().0, poly.as_ref().to_glib_none().0))
+            from_glib(ffi::osm_gps_map_polygon_remove(self.as_ref().to_glib_none().0, poly.as_ref().to_glib_none().0))
         }
     }
 
     fn polygon_remove_all(&self) {
         unsafe {
-            osm_gps_map_sys::osm_gps_map_polygon_remove_all(self.as_ref().to_glib_none().0);
+            ffi::osm_gps_map_polygon_remove_all(self.as_ref().to_glib_none().0);
         }
     }
 
     fn scroll(&self, dx: i32, dy: i32) {
         unsafe {
-            osm_gps_map_sys::osm_gps_map_scroll(self.as_ref().to_glib_none().0, dx, dy);
+            ffi::osm_gps_map_scroll(self.as_ref().to_glib_none().0, dx, dy);
         }
     }
 
     fn set_center(&self, latitude: f32, longitude: f32) {
         unsafe {
-            osm_gps_map_sys::osm_gps_map_set_center(self.as_ref().to_glib_none().0, latitude, longitude);
+            ffi::osm_gps_map_set_center(self.as_ref().to_glib_none().0, latitude, longitude);
         }
     }
 
     fn set_center_and_zoom(&self, latitude: f32, longitude: f32, zoom: i32) {
         unsafe {
-            osm_gps_map_sys::osm_gps_map_set_center_and_zoom(self.as_ref().to_glib_none().0, latitude, longitude, zoom);
+            ffi::osm_gps_map_set_center_and_zoom(self.as_ref().to_glib_none().0, latitude, longitude, zoom);
         }
     }
 
     fn set_keyboard_shortcut(&self, key: MapKey_t, keyval: u32) {
         unsafe {
-            osm_gps_map_sys::osm_gps_map_set_keyboard_shortcut(self.as_ref().to_glib_none().0, key.to_glib(), keyval);
+            ffi::osm_gps_map_set_keyboard_shortcut(self.as_ref().to_glib_none().0, key.to_glib(), keyval);
         }
     }
 
     fn set_zoom(&self, zoom: i32) -> i32 {
         unsafe {
-            osm_gps_map_sys::osm_gps_map_set_zoom(self.as_ref().to_glib_none().0, zoom)
+            ffi::osm_gps_map_set_zoom(self.as_ref().to_glib_none().0, zoom)
         }
     }
 
     fn set_zoom_offset(&self, zoom_offset: i32) {
         unsafe {
-            osm_gps_map_sys::osm_gps_map_set_zoom_offset(self.as_ref().to_glib_none().0, zoom_offset);
+            ffi::osm_gps_map_set_zoom_offset(self.as_ref().to_glib_none().0, zoom_offset);
         }
     }
 
     fn track_add<P: IsA<MapTrack>>(&self, track: &P) {
         unsafe {
-            osm_gps_map_sys::osm_gps_map_track_add(self.as_ref().to_glib_none().0, track.as_ref().to_glib_none().0);
+            ffi::osm_gps_map_track_add(self.as_ref().to_glib_none().0, track.as_ref().to_glib_none().0);
         }
     }
 
     fn track_remove<P: IsA<MapTrack>>(&self, track: &P) -> bool {
         unsafe {
-            from_glib(osm_gps_map_sys::osm_gps_map_track_remove(self.as_ref().to_glib_none().0, track.as_ref().to_glib_none().0))
+            from_glib(ffi::osm_gps_map_track_remove(self.as_ref().to_glib_none().0, track.as_ref().to_glib_none().0))
         }
     }
 
     fn track_remove_all(&self) {
         unsafe {
-            osm_gps_map_sys::osm_gps_map_track_remove_all(self.as_ref().to_glib_none().0);
+            ffi::osm_gps_map_track_remove_all(self.as_ref().to_glib_none().0);
         }
     }
 
     fn zoom_fit_bbox(&self, latitude1: f32, latitude2: f32, longitude1: f32, longitude2: f32) {
         unsafe {
-            osm_gps_map_sys::osm_gps_map_zoom_fit_bbox(self.as_ref().to_glib_none().0, latitude1, latitude2, longitude1, longitude2);
+            ffi::osm_gps_map_zoom_fit_bbox(self.as_ref().to_glib_none().0, latitude1, latitude2, longitude1, longitude2);
         }
     }
 
     fn zoom_in(&self) -> i32 {
         unsafe {
-            osm_gps_map_sys::osm_gps_map_zoom_in(self.as_ref().to_glib_none().0)
+            ffi::osm_gps_map_zoom_in(self.as_ref().to_glib_none().0)
         }
     }
 
     fn zoom_out(&self) -> i32 {
         unsafe {
-            osm_gps_map_sys::osm_gps_map_zoom_out(self.as_ref().to_glib_none().0)
+            ffi::osm_gps_map_zoom_out(self.as_ref().to_glib_none().0)
         }
     }
 
     fn get_property_auto_center(&self) -> bool {
         unsafe {
             let mut value = Value::from_type(<bool as StaticType>::static_type());
-            gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"auto-center\0".as_ptr() as *const _, value.to_glib_none_mut().0);
+            glib::gobject_ffi::g_object_get_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"auto-center\0".as_ptr() as *const _, value.to_glib_none_mut().0);
             value.get().expect("Return Value for property `auto-center` getter").unwrap()
         }
     }
 
     fn set_property_auto_center(&self, auto_center: bool) {
         unsafe {
-            gobject_sys::g_object_set_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"auto-center\0".as_ptr() as *const _, Value::from(&auto_center).to_glib_none().0);
+            glib::gobject_ffi::g_object_set_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"auto-center\0".as_ptr() as *const _, Value::from(&auto_center).to_glib_none().0);
         }
     }
 
     fn get_property_auto_center_threshold(&self) -> f32 {
         unsafe {
             let mut value = Value::from_type(<f32 as StaticType>::static_type());
-            gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"auto-center-threshold\0".as_ptr() as *const _, value.to_glib_none_mut().0);
+            glib::gobject_ffi::g_object_get_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"auto-center-threshold\0".as_ptr() as *const _, value.to_glib_none_mut().0);
             value.get().expect("Return Value for property `auto-center-threshold` getter").unwrap()
         }
     }
 
     fn set_property_auto_center_threshold(&self, auto_center_threshold: f32) {
         unsafe {
-            gobject_sys::g_object_set_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"auto-center-threshold\0".as_ptr() as *const _, Value::from(&auto_center_threshold).to_glib_none().0);
+            glib::gobject_ffi::g_object_set_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"auto-center-threshold\0".as_ptr() as *const _, Value::from(&auto_center_threshold).to_glib_none().0);
         }
     }
 
     fn get_property_auto_download(&self) -> bool {
         unsafe {
             let mut value = Value::from_type(<bool as StaticType>::static_type());
-            gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"auto-download\0".as_ptr() as *const _, value.to_glib_none_mut().0);
+            glib::gobject_ffi::g_object_get_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"auto-download\0".as_ptr() as *const _, value.to_glib_none_mut().0);
             value.get().expect("Return Value for property `auto-download` getter").unwrap()
         }
     }
 
     fn set_property_auto_download(&self, auto_download: bool) {
         unsafe {
-            gobject_sys::g_object_set_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"auto-download\0".as_ptr() as *const _, Value::from(&auto_download).to_glib_none().0);
+            glib::gobject_ffi::g_object_set_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"auto-download\0".as_ptr() as *const _, Value::from(&auto_download).to_glib_none().0);
         }
     }
 
     fn get_property_drag_limit(&self) -> i32 {
         unsafe {
             let mut value = Value::from_type(<i32 as StaticType>::static_type());
-            gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"drag-limit\0".as_ptr() as *const _, value.to_glib_none_mut().0);
+            glib::gobject_ffi::g_object_get_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"drag-limit\0".as_ptr() as *const _, value.to_glib_none_mut().0);
             value.get().expect("Return Value for property `drag-limit` getter").unwrap()
         }
     }
@@ -1173,49 +562,49 @@ impl<O: IsA<Map>> MapExt for O {
     fn get_property_gps_track_highlight_radius(&self) -> i32 {
         unsafe {
             let mut value = Value::from_type(<i32 as StaticType>::static_type());
-            gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"gps-track-highlight-radius\0".as_ptr() as *const _, value.to_glib_none_mut().0);
+            glib::gobject_ffi::g_object_get_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"gps-track-highlight-radius\0".as_ptr() as *const _, value.to_glib_none_mut().0);
             value.get().expect("Return Value for property `gps-track-highlight-radius` getter").unwrap()
         }
     }
 
     fn set_property_gps_track_highlight_radius(&self, gps_track_highlight_radius: i32) {
         unsafe {
-            gobject_sys::g_object_set_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"gps-track-highlight-radius\0".as_ptr() as *const _, Value::from(&gps_track_highlight_radius).to_glib_none().0);
+            glib::gobject_ffi::g_object_set_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"gps-track-highlight-radius\0".as_ptr() as *const _, Value::from(&gps_track_highlight_radius).to_glib_none().0);
         }
     }
 
     fn get_property_gps_track_point_radius(&self) -> i32 {
         unsafe {
             let mut value = Value::from_type(<i32 as StaticType>::static_type());
-            gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"gps-track-point-radius\0".as_ptr() as *const _, value.to_glib_none_mut().0);
+            glib::gobject_ffi::g_object_get_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"gps-track-point-radius\0".as_ptr() as *const _, value.to_glib_none_mut().0);
             value.get().expect("Return Value for property `gps-track-point-radius` getter").unwrap()
         }
     }
 
     fn set_property_gps_track_point_radius(&self, gps_track_point_radius: i32) {
         unsafe {
-            gobject_sys::g_object_set_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"gps-track-point-radius\0".as_ptr() as *const _, Value::from(&gps_track_point_radius).to_glib_none().0);
+            glib::gobject_ffi::g_object_set_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"gps-track-point-radius\0".as_ptr() as *const _, Value::from(&gps_track_point_radius).to_glib_none().0);
         }
     }
 
     fn get_property_gps_track_width(&self) -> f32 {
         unsafe {
             let mut value = Value::from_type(<f32 as StaticType>::static_type());
-            gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"gps-track-width\0".as_ptr() as *const _, value.to_glib_none_mut().0);
+            glib::gobject_ffi::g_object_get_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"gps-track-width\0".as_ptr() as *const _, value.to_glib_none_mut().0);
             value.get().expect("Return Value for property `gps-track-width` getter").unwrap()
         }
     }
 
     fn set_property_gps_track_width(&self, gps_track_width: f32) {
         unsafe {
-            gobject_sys::g_object_set_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"gps-track-width\0".as_ptr() as *const _, Value::from(&gps_track_width).to_glib_none().0);
+            glib::gobject_ffi::g_object_set_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"gps-track-width\0".as_ptr() as *const _, Value::from(&gps_track_width).to_glib_none().0);
         }
     }
 
-    fn get_property_image_format(&self) -> Option<GString> {
+    fn get_property_image_format(&self) -> Option<glib::GString> {
         unsafe {
-            let mut value = Value::from_type(<GString as StaticType>::static_type());
-            gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"image-format\0".as_ptr() as *const _, value.to_glib_none_mut().0);
+            let mut value = Value::from_type(<glib::GString as StaticType>::static_type());
+            glib::gobject_ffi::g_object_get_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"image-format\0".as_ptr() as *const _, value.to_glib_none_mut().0);
             value.get().expect("Return Value for property `image-format` getter")
         }
     }
@@ -1223,7 +612,7 @@ impl<O: IsA<Map>> MapExt for O {
     fn get_property_latitude(&self) -> f32 {
         unsafe {
             let mut value = Value::from_type(<f32 as StaticType>::static_type());
-            gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"latitude\0".as_ptr() as *const _, value.to_glib_none_mut().0);
+            glib::gobject_ffi::g_object_get_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"latitude\0".as_ptr() as *const _, value.to_glib_none_mut().0);
             value.get().expect("Return Value for property `latitude` getter").unwrap()
         }
     }
@@ -1231,7 +620,7 @@ impl<O: IsA<Map>> MapExt for O {
     fn get_property_longitude(&self) -> f32 {
         unsafe {
             let mut value = Value::from_type(<f32 as StaticType>::static_type());
-            gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"longitude\0".as_ptr() as *const _, value.to_glib_none_mut().0);
+            glib::gobject_ffi::g_object_get_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"longitude\0".as_ptr() as *const _, value.to_glib_none_mut().0);
             value.get().expect("Return Value for property `longitude` getter").unwrap()
         }
     }
@@ -1239,21 +628,21 @@ impl<O: IsA<Map>> MapExt for O {
     fn get_property_map_source(&self) -> i32 {
         unsafe {
             let mut value = Value::from_type(<i32 as StaticType>::static_type());
-            gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"map-source\0".as_ptr() as *const _, value.to_glib_none_mut().0);
+            glib::gobject_ffi::g_object_get_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"map-source\0".as_ptr() as *const _, value.to_glib_none_mut().0);
             value.get().expect("Return Value for property `map-source` getter").unwrap()
         }
     }
 
     fn set_property_map_source(&self, map_source: i32) {
         unsafe {
-            gobject_sys::g_object_set_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"map-source\0".as_ptr() as *const _, Value::from(&map_source).to_glib_none().0);
+            glib::gobject_ffi::g_object_set_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"map-source\0".as_ptr() as *const _, Value::from(&map_source).to_glib_none().0);
         }
     }
 
     fn get_property_map_x(&self) -> i32 {
         unsafe {
             let mut value = Value::from_type(<i32 as StaticType>::static_type());
-            gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"map-x\0".as_ptr() as *const _, value.to_glib_none_mut().0);
+            glib::gobject_ffi::g_object_get_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"map-x\0".as_ptr() as *const _, value.to_glib_none_mut().0);
             value.get().expect("Return Value for property `map-x` getter").unwrap()
         }
     }
@@ -1261,7 +650,7 @@ impl<O: IsA<Map>> MapExt for O {
     fn get_property_map_y(&self) -> i32 {
         unsafe {
             let mut value = Value::from_type(<i32 as StaticType>::static_type());
-            gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"map-y\0".as_ptr() as *const _, value.to_glib_none_mut().0);
+            glib::gobject_ffi::g_object_get_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"map-y\0".as_ptr() as *const _, value.to_glib_none_mut().0);
             value.get().expect("Return Value for property `map-y` getter").unwrap()
         }
     }
@@ -1269,7 +658,7 @@ impl<O: IsA<Map>> MapExt for O {
     fn get_property_max_zoom(&self) -> i32 {
         unsafe {
             let mut value = Value::from_type(<i32 as StaticType>::static_type());
-            gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"max-zoom\0".as_ptr() as *const _, value.to_glib_none_mut().0);
+            glib::gobject_ffi::g_object_get_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"max-zoom\0".as_ptr() as *const _, value.to_glib_none_mut().0);
             value.get().expect("Return Value for property `max-zoom` getter").unwrap()
         }
     }
@@ -1277,15 +666,15 @@ impl<O: IsA<Map>> MapExt for O {
     fn get_property_min_zoom(&self) -> i32 {
         unsafe {
             let mut value = Value::from_type(<i32 as StaticType>::static_type());
-            gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"min-zoom\0".as_ptr() as *const _, value.to_glib_none_mut().0);
+            glib::gobject_ffi::g_object_get_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"min-zoom\0".as_ptr() as *const _, value.to_glib_none_mut().0);
             value.get().expect("Return Value for property `min-zoom` getter").unwrap()
         }
     }
 
-    fn get_property_proxy_uri(&self) -> Option<GString> {
+    fn get_property_proxy_uri(&self) -> Option<glib::GString> {
         unsafe {
-            let mut value = Value::from_type(<GString as StaticType>::static_type());
-            gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"proxy-uri\0".as_ptr() as *const _, value.to_glib_none_mut().0);
+            let mut value = Value::from_type(<glib::GString as StaticType>::static_type());
+            glib::gobject_ffi::g_object_get_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"proxy-uri\0".as_ptr() as *const _, value.to_glib_none_mut().0);
             value.get().expect("Return Value for property `proxy-uri` getter")
         }
     }
@@ -1293,21 +682,21 @@ impl<O: IsA<Map>> MapExt for O {
     fn get_property_record_trip_history(&self) -> bool {
         unsafe {
             let mut value = Value::from_type(<bool as StaticType>::static_type());
-            gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"record-trip-history\0".as_ptr() as *const _, value.to_glib_none_mut().0);
+            glib::gobject_ffi::g_object_get_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"record-trip-history\0".as_ptr() as *const _, value.to_glib_none_mut().0);
             value.get().expect("Return Value for property `record-trip-history` getter").unwrap()
         }
     }
 
     fn set_property_record_trip_history(&self, record_trip_history: bool) {
         unsafe {
-            gobject_sys::g_object_set_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"record-trip-history\0".as_ptr() as *const _, Value::from(&record_trip_history).to_glib_none().0);
+            glib::gobject_ffi::g_object_set_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"record-trip-history\0".as_ptr() as *const _, Value::from(&record_trip_history).to_glib_none().0);
         }
     }
 
-    fn get_property_repo_uri(&self) -> Option<GString> {
+    fn get_property_repo_uri(&self) -> Option<glib::GString> {
         unsafe {
-            let mut value = Value::from_type(<GString as StaticType>::static_type());
-            gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"repo-uri\0".as_ptr() as *const _, value.to_glib_none_mut().0);
+            let mut value = Value::from_type(<glib::GString as StaticType>::static_type());
+            glib::gobject_ffi::g_object_get_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"repo-uri\0".as_ptr() as *const _, value.to_glib_none_mut().0);
             value.get().expect("Return Value for property `repo-uri` getter")
         }
     }
@@ -1315,49 +704,49 @@ impl<O: IsA<Map>> MapExt for O {
     fn get_property_show_gps_point(&self) -> bool {
         unsafe {
             let mut value = Value::from_type(<bool as StaticType>::static_type());
-            gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"show-gps-point\0".as_ptr() as *const _, value.to_glib_none_mut().0);
+            glib::gobject_ffi::g_object_get_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"show-gps-point\0".as_ptr() as *const _, value.to_glib_none_mut().0);
             value.get().expect("Return Value for property `show-gps-point` getter").unwrap()
         }
     }
 
     fn set_property_show_gps_point(&self, show_gps_point: bool) {
         unsafe {
-            gobject_sys::g_object_set_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"show-gps-point\0".as_ptr() as *const _, Value::from(&show_gps_point).to_glib_none().0);
+            glib::gobject_ffi::g_object_set_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"show-gps-point\0".as_ptr() as *const _, Value::from(&show_gps_point).to_glib_none().0);
         }
     }
 
     fn get_property_show_trip_history(&self) -> bool {
         unsafe {
             let mut value = Value::from_type(<bool as StaticType>::static_type());
-            gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"show-trip-history\0".as_ptr() as *const _, value.to_glib_none_mut().0);
+            glib::gobject_ffi::g_object_get_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"show-trip-history\0".as_ptr() as *const _, value.to_glib_none_mut().0);
             value.get().expect("Return Value for property `show-trip-history` getter").unwrap()
         }
     }
 
     fn set_property_show_trip_history(&self, show_trip_history: bool) {
         unsafe {
-            gobject_sys::g_object_set_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"show-trip-history\0".as_ptr() as *const _, Value::from(&show_trip_history).to_glib_none().0);
+            glib::gobject_ffi::g_object_set_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"show-trip-history\0".as_ptr() as *const _, Value::from(&show_trip_history).to_glib_none().0);
         }
     }
 
-    fn get_property_tile_cache(&self) -> Option<GString> {
+    fn get_property_tile_cache(&self) -> Option<glib::GString> {
         unsafe {
-            let mut value = Value::from_type(<GString as StaticType>::static_type());
-            gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"tile-cache\0".as_ptr() as *const _, value.to_glib_none_mut().0);
+            let mut value = Value::from_type(<glib::GString as StaticType>::static_type());
+            glib::gobject_ffi::g_object_get_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"tile-cache\0".as_ptr() as *const _, value.to_glib_none_mut().0);
             value.get().expect("Return Value for property `tile-cache` getter")
         }
     }
 
     fn set_property_tile_cache(&self, tile_cache: Option<&str>) {
         unsafe {
-            gobject_sys::g_object_set_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"tile-cache\0".as_ptr() as *const _, Value::from(tile_cache).to_glib_none().0);
+            glib::gobject_ffi::g_object_set_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"tile-cache\0".as_ptr() as *const _, Value::from(tile_cache).to_glib_none().0);
         }
     }
 
-    fn get_property_tile_cache_base(&self) -> Option<GString> {
+    fn get_property_tile_cache_base(&self) -> Option<glib::GString> {
         unsafe {
-            let mut value = Value::from_type(<GString as StaticType>::static_type());
-            gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"tile-cache-base\0".as_ptr() as *const _, value.to_glib_none_mut().0);
+            let mut value = Value::from_type(<glib::GString as StaticType>::static_type());
+            glib::gobject_ffi::g_object_get_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"tile-cache-base\0".as_ptr() as *const _, value.to_glib_none_mut().0);
             value.get().expect("Return Value for property `tile-cache-base` getter")
         }
     }
@@ -1365,7 +754,7 @@ impl<O: IsA<Map>> MapExt for O {
     fn get_property_tile_zoom_offset(&self) -> i32 {
         unsafe {
             let mut value = Value::from_type(<i32 as StaticType>::static_type());
-            gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"tile-zoom-offset\0".as_ptr() as *const _, value.to_glib_none_mut().0);
+            glib::gobject_ffi::g_object_get_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"tile-zoom-offset\0".as_ptr() as *const _, value.to_glib_none_mut().0);
             value.get().expect("Return Value for property `tile-zoom-offset` getter").unwrap()
         }
     }
@@ -1373,35 +762,35 @@ impl<O: IsA<Map>> MapExt for O {
     fn get_property_tiles_queued(&self) -> i32 {
         unsafe {
             let mut value = Value::from_type(<i32 as StaticType>::static_type());
-            gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"tiles-queued\0".as_ptr() as *const _, value.to_glib_none_mut().0);
+            glib::gobject_ffi::g_object_get_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"tiles-queued\0".as_ptr() as *const _, value.to_glib_none_mut().0);
             value.get().expect("Return Value for property `tiles-queued` getter").unwrap()
         }
     }
 
-    fn get_property_user_agent(&self) -> Option<GString> {
+    fn get_property_user_agent(&self) -> Option<glib::GString> {
         unsafe {
-            let mut value = Value::from_type(<GString as StaticType>::static_type());
-            gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"user-agent\0".as_ptr() as *const _, value.to_glib_none_mut().0);
+            let mut value = Value::from_type(<glib::GString as StaticType>::static_type());
+            glib::gobject_ffi::g_object_get_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"user-agent\0".as_ptr() as *const _, value.to_glib_none_mut().0);
             value.get().expect("Return Value for property `user-agent` getter")
         }
     }
 
     fn set_property_user_agent(&self, user_agent: Option<&str>) {
         unsafe {
-            gobject_sys::g_object_set_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"user-agent\0".as_ptr() as *const _, Value::from(user_agent).to_glib_none().0);
+            glib::gobject_ffi::g_object_set_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"user-agent\0".as_ptr() as *const _, Value::from(user_agent).to_glib_none().0);
         }
     }
 
     fn get_property_zoom(&self) -> i32 {
         unsafe {
             let mut value = Value::from_type(<i32 as StaticType>::static_type());
-            gobject_sys::g_object_get_property(self.to_glib_none().0 as *mut gobject_sys::GObject, b"zoom\0".as_ptr() as *const _, value.to_glib_none_mut().0);
+            glib::gobject_ffi::g_object_get_property(self.to_glib_none().0 as *mut glib::gobject_ffi::GObject, b"zoom\0".as_ptr() as *const _, value.to_glib_none_mut().0);
             value.get().expect("Return Value for property `zoom` getter").unwrap()
         }
     }
 
     fn connect_changed<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
-        unsafe extern "C" fn changed_trampoline<P, F: Fn(&P) + 'static>(this: *mut osm_gps_map_sys::OsmGpsMap, f: glib_sys::gpointer)
+        unsafe extern "C" fn changed_trampoline<P, F: Fn(&P) + 'static>(this: *mut ffi::OsmGpsMap, f: glib::ffi::gpointer)
             where P: IsA<Map>
         {
             let f: &F = &*(f as *const F);
@@ -1415,7 +804,7 @@ impl<O: IsA<Map>> MapExt for O {
     }
 
     fn connect_property_auto_center_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
-        unsafe extern "C" fn notify_auto_center_trampoline<P, F: Fn(&P) + 'static>(this: *mut osm_gps_map_sys::OsmGpsMap, _param_spec: glib_sys::gpointer, f: glib_sys::gpointer)
+        unsafe extern "C" fn notify_auto_center_trampoline<P, F: Fn(&P) + 'static>(this: *mut ffi::OsmGpsMap, _param_spec: glib::ffi::gpointer, f: glib::ffi::gpointer)
             where P: IsA<Map>
         {
             let f: &F = &*(f as *const F);
@@ -1429,7 +818,7 @@ impl<O: IsA<Map>> MapExt for O {
     }
 
     fn connect_property_auto_center_threshold_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
-        unsafe extern "C" fn notify_auto_center_threshold_trampoline<P, F: Fn(&P) + 'static>(this: *mut osm_gps_map_sys::OsmGpsMap, _param_spec: glib_sys::gpointer, f: glib_sys::gpointer)
+        unsafe extern "C" fn notify_auto_center_threshold_trampoline<P, F: Fn(&P) + 'static>(this: *mut ffi::OsmGpsMap, _param_spec: glib::ffi::gpointer, f: glib::ffi::gpointer)
             where P: IsA<Map>
         {
             let f: &F = &*(f as *const F);
@@ -1443,7 +832,7 @@ impl<O: IsA<Map>> MapExt for O {
     }
 
     fn connect_property_auto_download_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
-        unsafe extern "C" fn notify_auto_download_trampoline<P, F: Fn(&P) + 'static>(this: *mut osm_gps_map_sys::OsmGpsMap, _param_spec: glib_sys::gpointer, f: glib_sys::gpointer)
+        unsafe extern "C" fn notify_auto_download_trampoline<P, F: Fn(&P) + 'static>(this: *mut ffi::OsmGpsMap, _param_spec: glib::ffi::gpointer, f: glib::ffi::gpointer)
             where P: IsA<Map>
         {
             let f: &F = &*(f as *const F);
@@ -1457,7 +846,7 @@ impl<O: IsA<Map>> MapExt for O {
     }
 
     fn connect_property_gps_track_highlight_radius_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
-        unsafe extern "C" fn notify_gps_track_highlight_radius_trampoline<P, F: Fn(&P) + 'static>(this: *mut osm_gps_map_sys::OsmGpsMap, _param_spec: glib_sys::gpointer, f: glib_sys::gpointer)
+        unsafe extern "C" fn notify_gps_track_highlight_radius_trampoline<P, F: Fn(&P) + 'static>(this: *mut ffi::OsmGpsMap, _param_spec: glib::ffi::gpointer, f: glib::ffi::gpointer)
             where P: IsA<Map>
         {
             let f: &F = &*(f as *const F);
@@ -1471,7 +860,7 @@ impl<O: IsA<Map>> MapExt for O {
     }
 
     fn connect_property_gps_track_point_radius_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
-        unsafe extern "C" fn notify_gps_track_point_radius_trampoline<P, F: Fn(&P) + 'static>(this: *mut osm_gps_map_sys::OsmGpsMap, _param_spec: glib_sys::gpointer, f: glib_sys::gpointer)
+        unsafe extern "C" fn notify_gps_track_point_radius_trampoline<P, F: Fn(&P) + 'static>(this: *mut ffi::OsmGpsMap, _param_spec: glib::ffi::gpointer, f: glib::ffi::gpointer)
             where P: IsA<Map>
         {
             let f: &F = &*(f as *const F);
@@ -1485,7 +874,7 @@ impl<O: IsA<Map>> MapExt for O {
     }
 
     fn connect_property_gps_track_width_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
-        unsafe extern "C" fn notify_gps_track_width_trampoline<P, F: Fn(&P) + 'static>(this: *mut osm_gps_map_sys::OsmGpsMap, _param_spec: glib_sys::gpointer, f: glib_sys::gpointer)
+        unsafe extern "C" fn notify_gps_track_width_trampoline<P, F: Fn(&P) + 'static>(this: *mut ffi::OsmGpsMap, _param_spec: glib::ffi::gpointer, f: glib::ffi::gpointer)
             where P: IsA<Map>
         {
             let f: &F = &*(f as *const F);
@@ -1499,7 +888,7 @@ impl<O: IsA<Map>> MapExt for O {
     }
 
     fn connect_property_latitude_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
-        unsafe extern "C" fn notify_latitude_trampoline<P, F: Fn(&P) + 'static>(this: *mut osm_gps_map_sys::OsmGpsMap, _param_spec: glib_sys::gpointer, f: glib_sys::gpointer)
+        unsafe extern "C" fn notify_latitude_trampoline<P, F: Fn(&P) + 'static>(this: *mut ffi::OsmGpsMap, _param_spec: glib::ffi::gpointer, f: glib::ffi::gpointer)
             where P: IsA<Map>
         {
             let f: &F = &*(f as *const F);
@@ -1513,7 +902,7 @@ impl<O: IsA<Map>> MapExt for O {
     }
 
     fn connect_property_longitude_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
-        unsafe extern "C" fn notify_longitude_trampoline<P, F: Fn(&P) + 'static>(this: *mut osm_gps_map_sys::OsmGpsMap, _param_spec: glib_sys::gpointer, f: glib_sys::gpointer)
+        unsafe extern "C" fn notify_longitude_trampoline<P, F: Fn(&P) + 'static>(this: *mut ffi::OsmGpsMap, _param_spec: glib::ffi::gpointer, f: glib::ffi::gpointer)
             where P: IsA<Map>
         {
             let f: &F = &*(f as *const F);
@@ -1527,7 +916,7 @@ impl<O: IsA<Map>> MapExt for O {
     }
 
     fn connect_property_map_source_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
-        unsafe extern "C" fn notify_map_source_trampoline<P, F: Fn(&P) + 'static>(this: *mut osm_gps_map_sys::OsmGpsMap, _param_spec: glib_sys::gpointer, f: glib_sys::gpointer)
+        unsafe extern "C" fn notify_map_source_trampoline<P, F: Fn(&P) + 'static>(this: *mut ffi::OsmGpsMap, _param_spec: glib::ffi::gpointer, f: glib::ffi::gpointer)
             where P: IsA<Map>
         {
             let f: &F = &*(f as *const F);
@@ -1541,7 +930,7 @@ impl<O: IsA<Map>> MapExt for O {
     }
 
     fn connect_property_record_trip_history_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
-        unsafe extern "C" fn notify_record_trip_history_trampoline<P, F: Fn(&P) + 'static>(this: *mut osm_gps_map_sys::OsmGpsMap, _param_spec: glib_sys::gpointer, f: glib_sys::gpointer)
+        unsafe extern "C" fn notify_record_trip_history_trampoline<P, F: Fn(&P) + 'static>(this: *mut ffi::OsmGpsMap, _param_spec: glib::ffi::gpointer, f: glib::ffi::gpointer)
             where P: IsA<Map>
         {
             let f: &F = &*(f as *const F);
@@ -1555,7 +944,7 @@ impl<O: IsA<Map>> MapExt for O {
     }
 
     fn connect_property_show_gps_point_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
-        unsafe extern "C" fn notify_show_gps_point_trampoline<P, F: Fn(&P) + 'static>(this: *mut osm_gps_map_sys::OsmGpsMap, _param_spec: glib_sys::gpointer, f: glib_sys::gpointer)
+        unsafe extern "C" fn notify_show_gps_point_trampoline<P, F: Fn(&P) + 'static>(this: *mut ffi::OsmGpsMap, _param_spec: glib::ffi::gpointer, f: glib::ffi::gpointer)
             where P: IsA<Map>
         {
             let f: &F = &*(f as *const F);
@@ -1569,7 +958,7 @@ impl<O: IsA<Map>> MapExt for O {
     }
 
     fn connect_property_show_trip_history_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
-        unsafe extern "C" fn notify_show_trip_history_trampoline<P, F: Fn(&P) + 'static>(this: *mut osm_gps_map_sys::OsmGpsMap, _param_spec: glib_sys::gpointer, f: glib_sys::gpointer)
+        unsafe extern "C" fn notify_show_trip_history_trampoline<P, F: Fn(&P) + 'static>(this: *mut ffi::OsmGpsMap, _param_spec: glib::ffi::gpointer, f: glib::ffi::gpointer)
             where P: IsA<Map>
         {
             let f: &F = &*(f as *const F);
@@ -1583,7 +972,7 @@ impl<O: IsA<Map>> MapExt for O {
     }
 
     fn connect_property_tile_cache_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
-        unsafe extern "C" fn notify_tile_cache_trampoline<P, F: Fn(&P) + 'static>(this: *mut osm_gps_map_sys::OsmGpsMap, _param_spec: glib_sys::gpointer, f: glib_sys::gpointer)
+        unsafe extern "C" fn notify_tile_cache_trampoline<P, F: Fn(&P) + 'static>(this: *mut ffi::OsmGpsMap, _param_spec: glib::ffi::gpointer, f: glib::ffi::gpointer)
             where P: IsA<Map>
         {
             let f: &F = &*(f as *const F);
@@ -1597,7 +986,7 @@ impl<O: IsA<Map>> MapExt for O {
     }
 
     fn connect_property_tiles_queued_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
-        unsafe extern "C" fn notify_tiles_queued_trampoline<P, F: Fn(&P) + 'static>(this: *mut osm_gps_map_sys::OsmGpsMap, _param_spec: glib_sys::gpointer, f: glib_sys::gpointer)
+        unsafe extern "C" fn notify_tiles_queued_trampoline<P, F: Fn(&P) + 'static>(this: *mut ffi::OsmGpsMap, _param_spec: glib::ffi::gpointer, f: glib::ffi::gpointer)
             where P: IsA<Map>
         {
             let f: &F = &*(f as *const F);
@@ -1611,7 +1000,7 @@ impl<O: IsA<Map>> MapExt for O {
     }
 
     fn connect_property_user_agent_notify<F: Fn(&Self) + 'static>(&self, f: F) -> SignalHandlerId {
-        unsafe extern "C" fn notify_user_agent_trampoline<P, F: Fn(&P) + 'static>(this: *mut osm_gps_map_sys::OsmGpsMap, _param_spec: glib_sys::gpointer, f: glib_sys::gpointer)
+        unsafe extern "C" fn notify_user_agent_trampoline<P, F: Fn(&P) + 'static>(this: *mut ffi::OsmGpsMap, _param_spec: glib::ffi::gpointer, f: glib::ffi::gpointer)
             where P: IsA<Map>
         {
             let f: &F = &*(f as *const F);

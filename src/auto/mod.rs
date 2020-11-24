@@ -2,34 +2,36 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
+mod implementor_iface;
+pub use self::implementor_iface::{ImplementorIface, NONE_IMPLEMENTOR_IFACE};
+pub use self::implementor_iface::ImplementorIfaceExt;
+
+mod initially_unowned;
+pub use self::initially_unowned::{InitiallyUnowned, NONE_INITIALLY_UNOWNED};
+
 mod map;
-pub use self::map::{Map, MapClass, NONE_MAP};
+pub use self::map::{Map, NONE_MAP};
 pub use self::map::MapExt;
-pub use self::map::MapBuilder;
 
 mod map_image;
-pub use self::map_image::{MapImage, MapImageClass, NONE_MAP_IMAGE};
+pub use self::map_image::{MapImage, NONE_MAP_IMAGE};
 pub use self::map_image::MapImageExt;
-pub use self::map_image::MapImageBuilder;
 
 mod map_layer;
 pub use self::map_layer::{MapLayer, NONE_MAP_LAYER};
 pub use self::map_layer::MapLayerExt;
 
 mod map_osd;
-pub use self::map_osd::{MapOsd, MapOsdClass, NONE_MAP_OSD};
+pub use self::map_osd::{MapOsd, NONE_MAP_OSD};
 pub use self::map_osd::MapOsdExt;
-pub use self::map_osd::MapOsdBuilder;
 
 mod map_polygon;
-pub use self::map_polygon::{MapPolygon, MapPolygonClass, NONE_MAP_POLYGON};
+pub use self::map_polygon::{MapPolygon, NONE_MAP_POLYGON};
 pub use self::map_polygon::MapPolygonExt;
-pub use self::map_polygon::MapPolygonBuilder;
 
 mod map_track;
-pub use self::map_track::{MapTrack, MapTrackClass, NONE_MAP_TRACK};
+pub use self::map_track::{MapTrack, NONE_MAP_TRACK};
 pub use self::map_track::MapTrackExt;
-pub use self::map_track::MapTrackBuilder;
 
 mod map_point;
 pub use self::map_point::MapPoint;
@@ -40,6 +42,7 @@ pub use self::enums::MapSource_t;
 
 #[doc(hidden)]
 pub mod traits {
+    pub use super::ImplementorIfaceExt;
     pub use super::MapExt;
     pub use super::MapImageExt;
     pub use super::MapLayerExt;

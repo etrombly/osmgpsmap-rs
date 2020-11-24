@@ -22,7 +22,6 @@ generate = [
     "OsmGpsMap.Map",
     "OsmGpsMap.MapKey_t",
     "OsmGpsMap.MapOsd",
-#    "OsmGpsMap.MapPoint",
     "OsmGpsMap.MapPolygon",
     "OsmGpsMap.MapSource_t",
     "OsmGpsMap.MapTrack",
@@ -37,16 +36,15 @@ builders = [
 ]
 
 manual = [
-#    "Atk.ImplementorIface",
     "cairo.Context",
     "GdkPixbuf.Pixbuf",
-    "Gdk.EventButton",
     "Gdk.Rectangle",
     "Gdk.RGBA",
     "Gtk.Widget",
     "Gtk.Buildable",
     "Gtk.DrawingArea",
-#    "GObject.InitiallyUnowned"
+    "GObject.InitiallyUnowned",
+    "Atk.ImplementorIface",
 ]
 
 [[object]]

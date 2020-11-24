@@ -2,19 +2,16 @@
 // from gir-files (https://github.com/gtk-rs/gir-files)
 // DO NOT EDIT
 
-use cairo;
-use gdk;
+use crate::Map;
 use glib::object::IsA;
 use glib::translate::*;
-use osm_gps_map_sys;
 use std::fmt;
-use Map;
 
-glib_wrapper! {
-    pub struct MapLayer(Interface<osm_gps_map_sys::OsmGpsMapLayer>);
+glib::glib_wrapper! {
+    pub struct MapLayer(Interface<ffi::OsmGpsMapLayer>);
 
     match fn {
-        get_type => || osm_gps_map_sys::osm_gps_map_layer_get_type(),
+        get_type => || ffi::osm_gps_map_layer_get_type(),
     }
 }
 
@@ -23,7 +20,7 @@ pub const NONE_MAP_LAYER: Option<&MapLayer> = None;
 pub trait MapLayerExt: 'static {
     fn busy(&self) -> bool;
 
-    fn button_press<P: IsA<Map>>(&self, map: &P, event: &gdk::EventButton) -> bool;
+    //fn button_press<P: IsA<Map>>(&self, map: &P, event: /*Ignored*/&gdk::EventButton) -> bool;
 
     fn draw<P: IsA<Map>>(&self, map: &P, cr: &cairo::Context);
 
@@ -33,25 +30,23 @@ pub trait MapLayerExt: 'static {
 impl<O: IsA<MapLayer>> MapLayerExt for O {
     fn busy(&self) -> bool {
         unsafe {
-            from_glib(osm_gps_map_sys::osm_gps_map_layer_busy(self.as_ref().to_glib_none().0))
+            from_glib(ffi::osm_gps_map_layer_busy(self.as_ref().to_glib_none().0))
         }
     }
 
-    fn button_press<P: IsA<Map>>(&self, map: &P, event: &gdk::EventButton) -> bool {
-        unsafe {
-            from_glib(osm_gps_map_sys::osm_gps_map_layer_button_press(self.as_ref().to_glib_none().0, map.as_ref().to_glib_none().0, mut_override(event.to_glib_none().0)))
-        }
-    }
+    //fn button_press<P: IsA<Map>>(&self, map: &P, event: /*Ignored*/&gdk::EventButton) -> bool {
+    //    unsafe { TODO: call ffi:osm_gps_map_layer_button_press() }
+    //}
 
     fn draw<P: IsA<Map>>(&self, map: &P, cr: &cairo::Context) {
         unsafe {
-            osm_gps_map_sys::osm_gps_map_layer_draw(self.as_ref().to_glib_none().0, map.as_ref().to_glib_none().0, mut_override(cr.to_glib_none().0));
+            ffi::osm_gps_map_layer_draw(self.as_ref().to_glib_none().0, map.as_ref().to_glib_none().0, mut_override(cr.to_glib_none().0));
         }
     }
 
     fn render<P: IsA<Map>>(&self, map: &P) {
         unsafe {
-            osm_gps_map_sys::osm_gps_map_layer_render(self.as_ref().to_glib_none().0, map.as_ref().to_glib_none().0);
+            ffi::osm_gps_map_layer_render(self.as_ref().to_glib_none().0, map.as_ref().to_glib_none().0);
         }
     }
 }
